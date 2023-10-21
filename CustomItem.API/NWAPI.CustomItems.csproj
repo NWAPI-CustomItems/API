@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <AssemblyName>CustomItem.API</AssemblyName>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <TargetFramework>net48</TargetFramework>
+        <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+        <IsPublishable>False</IsPublishable>
+        <Nullable>Enable</Nullable>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <Optimize>False</Optimize>
+      <DebugType>portable</DebugType>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <Optimize>True</Optimize>
+      <DebugType>embedded</DebugType>
+    </PropertyGroup>
+
+    <Import Project="../Cerberus.props" />
+
+    <ItemGroup>
+        <Compile Remove="Properties\**" />
+        <EmbeddedResource Remove="Properties\**" />
+        <None Remove="Properties\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="FodyWeavers.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Costura.Fody" Version="5.7.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Lib.Harmony" Version="2.2.2" />
+        <PackageReference Include="MySqlConnector" Version="2.3.0-beta.2" />
+        <PackageReference Include="Nito.AsyncEx.Tasks" Version="5.1.2" />
+        <PackageReference Include="Northwood.PluginAPI" Version="13.1.1" />
+        <PackageReference Include="Northwood.PluginAPI.Analyzers" Version="12.0.0" />
+        <PackageReference Include="YamlDotNet" Version="13.3.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Reference Include="Assembly-CSharp-firstpass" HintPath="$(EXILED_References)\Assembly-CSharp-firstpass.dll" Private="false" />
+        <Reference Include="Assembly-CSharp" HintPath="$(EXILED_References)\Assembly-CSharp-Publicized.dll" Private="false" />
+        <Reference Include="CommandSystem.Core" HintPath="$(EXILED_References)\CommandSystem.Core.dll" Private="false" />
+        <Reference Include="Mirror-Publicized" HintPath="$(EXILED_References)\Mirror-Publicized.dll" Private="false" />
+        <Reference Include="System.Core" HintPath="$(EXILED_References)\System.Core.dll" Private="false" />
+        <Reference Include="UnityEngine" HintPath="$(EXILED_References)\UnityEngine.dll" Private="false" />
+        <Reference Include="NorthwoodLib" HintPath="$(EXILED_References)\NorthwoodLib.dll" Private="false" />
+        <Reference Include="NWAPIPermissionSystem" HintPath="$(SL_REFERENCES)\NWAPIPermissionSystem.dll" Private="false" />
+        <Reference Include="UnityEngine.CoreModule" HintPath="$(EXILED_References)\UnityEngine.CoreModule.dll" Private="false" />
+        <Reference Include="UnityEngine.AudioModule" HintPath="$(EXILED_References)\UnityEngine.AudioModule.dll" Private="false" />
+        <Reference Include="UnityEngine.PhysicsModule" HintPath="$(SL_REFERENCES)\UnityEngine.PhysicsModule.dll" Private="false" />
+        <Reference Include="UnityEngine.UnityWebRequestModule" HintPath="$(EXILED_References)\UnityEngine.UnityWebRequestModule.dll" Private="false" />
+        <Reference Include="Pooling" HintPath="$(EXILED_References)\Pooling.dll" Private="false" />
+    </ItemGroup>
+</Project>
