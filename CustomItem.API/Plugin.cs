@@ -19,7 +19,7 @@ namespace NWAPI.CustomItems
         [PluginEntryPoint("CustomItem.API", PluginVersion, "Ye", "SrLicht & Imurx")]
         private void LoadPlugin()
         {
-
+            Instance = this;
         }
 
         [PluginUnload]

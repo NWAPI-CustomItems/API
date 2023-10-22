@@ -1,9 +1,15 @@
 ﻿using InventorySystem;
+using InventorySystem.Items;
 using MEC;
+using NWAPI.CustomItems.API.Struct;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
+using PluginAPI.Loader;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
@@ -14,7 +20,11 @@ namespace NWAPI.CustomItems.API.Features
     /// </summary>
     public abstract class CustomItem
     {
+        private static readonly List<CustomItemInfo?> LookupTable = new();
+
         public static HashSet<ushort> AllCustomItemsSerials = new();
+
+        public static HashSet<CustomItem> Registered { get; } =  new();
 
         // API \\
         public abstract uint Id { get; set; }
@@ -72,12 +82,18 @@ namespace NWAPI.CustomItems.API.Features
 
         public virtual void Init()
         {
-
+            LookupTable.Add(new(Id, Name, GetType()));
+            SubscribeEvents();
         }
 
         public virtual void Destroy()
         {
+            UnsubscribeEvents();
 
+            var customItemInfo = LookupTable.FirstOrDefault(i => i.HasValue && i.Value.Id == Id);
+
+            if (customItemInfo.HasValue)
+                LookupTable.Remove(customItemInfo);
         }
 
         protected virtual void SubscribeEvents()
@@ -108,7 +124,8 @@ namespace NWAPI.CustomItems.API.Features
             if (ev.ChangeReason == PlayerRoles.RoleChangeReason.Escaped)
                 return;
 
-            foreach (var item in ev.Player.Items)
+            List<ItemBase> items = new(ev.Player.Items);
+            foreach (var item in items)
             {
                 if (false)
                     continue;
@@ -127,8 +144,9 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         private void OnInternalOwnerDying(PlayerDyingEvent ev)
         {
+            List<ItemBase> items = new(ev.Player.Items);
             Vector3 position = ev.Player.Position + Vector3.up;
-            foreach (var item in ev.Player.Items)
+            foreach (var item in items)
             {
                 if (false)
                     continue;
@@ -148,7 +166,8 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         private void OnInternalOwnerEscaping(PlayerEscapeEvent ev)
         {
-            foreach (var item in ev.Player.Items)
+            List<ItemBase> items = new(ev.Player.Items);
+            foreach (var item in items)
             {
                 if (false)
                     continue;
@@ -170,7 +189,8 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         private void OnInternalOwnerHandcuffing(PlayerHandcuffEvent ev)
         {
-            foreach (var item in ev.Target.Items)
+            List<ItemBase> items = new(ev.Target.Items);
+            foreach (var item in items)
             {
                 if (false)
                     continue;
