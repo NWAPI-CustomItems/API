@@ -1,25 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using NWAPI.CustomItems.API.Features;
+using System;
 
 namespace NWAPI.CustomItems.API.Struct
 {
     public struct CustomItemInfo
     {
-
         public uint Id { get; private set; }
 
         public string Name { get; private set; }
 
         public Type Type { get; private set; }
 
-        public CustomItemInfo(uint id, string name, Type type)
+        public CustomItem CustomItem { get; private set; }
+
+        public CustomItemInfo(uint id, string name, Type type, CustomItem item)
         {
             Id = id;
             Name = name;
             Type = type;
+            CustomItem = item;
         }
 
         /// <inheritdoc/>
