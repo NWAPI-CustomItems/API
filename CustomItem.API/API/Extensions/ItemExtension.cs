@@ -19,10 +19,10 @@ namespace NWAPI.CustomItems.API.Extensions
     public static class ItemExtension
     {
         /// <summary>
-        /// Checks if the specified ItemType is a keycard.
+        /// Checks if the specified <see cref="ItemType"/> is a keycard.
         /// </summary>
-        /// <param name="type">The ItemType to check.</param>
-        /// <returns>True if the ItemType is a keycard; otherwise, false.</returns>
+        /// <param name="type">The <see cref="ItemType"/> to check.</param>
+        /// <returns><see langword="true"/> if the <see cref="ItemType"/> is a keycard; otherwise, <see langword="false"/>.</returns>
         public static bool IsKeycard(this ItemType type) => type switch
         {
             ItemType.KeycardChaosInsurgency => true,
@@ -41,10 +41,10 @@ namespace NWAPI.CustomItems.API.Extensions
         };
 
         /// <summary>
-        /// Checks if the specified ItemType is ammo.
+        /// Checks if the specified <see cref="ItemType"/> is ammo.
         /// </summary>
-        /// <param name="type">The ItemType to check.</param>
-        /// <returns>True if the ItemType is ammo; otherwise, false.</returns>
+        /// <param name="type">The <see cref="ItemType"/> to check.</param>
+        /// <returns><see langword="true"/> if the <see cref="ItemType"/> is ammo; otherwise, <see langword="false"/>.</returns>
         public static bool IsAmmo(this ItemType type) => type switch
         {
             ItemType.Ammo12gauge => true,
@@ -57,10 +57,10 @@ namespace NWAPI.CustomItems.API.Extensions
         };
 
         /// <summary>
-        /// Checks if the specified ItemType is a firearm.
+        /// Checks if the specified <see cref="ItemType"/> is a firearm.
         /// </summary>
-        /// <param name="type">The ItemType to check.</param>
-        /// <returns>True if the ItemType is a firearm; otherwise, false.</returns>
+        /// <param name="type">The <see cref="ItemType"/> to check.</param>
+        /// <returns><see langword="true"/> if the ItemType is a firearm; otherwise, <see langword="false"/>.</returns>
         public static bool IsFirearm(this ItemType type) => type switch
         {
             ItemType.GunE11SR => true,
@@ -78,15 +78,28 @@ namespace NWAPI.CustomItems.API.Extensions
         };
 
         /// <summary>
-        /// Checks if the specified ItemType is a special weapon.
+        /// Checks if the specified <see cref="ItemType"/> is a special weapon.
         /// </summary>
         /// <param name="type">The ItemType to check.</param>
-        /// <returns>True if the ItemType is a special weapon; otherwise, false.</returns>
+        /// <returns><see langword="true"/> if the <see cref="ItemType"/> is a special weapon; otherwise, <see langword="false"/>.</returns>
         public static bool IsSpecialWeapon(this ItemType type) => type switch
         {
             ItemType.Jailbird => true,
             ItemType.ParticleDisruptor => true,
             ItemType.MicroHID => true,
+            _ => false
+        };
+
+        /// <summary>
+        /// Checks if the specified <see cref="ItemType"/> is a type of armor.
+        /// </summary>
+        /// <param name="type">The <see cref="ItemType"/> to check.</param>
+        /// <returns><see langword="true"/> if the <see cref="ItemType"/> is any type of armor; otherwise, <see langword="false"/>.</returns>
+        public static bool IsArmor(this ItemType type) => type switch
+        {
+            ItemType.ArmorCombat => true,
+            ItemType.ArmorHeavy => true,
+            ItemType.ArmorLight => true,
             _ => false
         };
 

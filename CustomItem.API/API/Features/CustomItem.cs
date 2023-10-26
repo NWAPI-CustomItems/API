@@ -215,7 +215,7 @@ namespace NWAPI.CustomItems.API.Features
                 TrackedSerials.Add(item.ItemSerial);
 
             if (displayMessage)
-                Timing.CallDelayed(.5f, () => ShowPickupMessage(player));
+                Timing.CallDelayed(.2f, () => ShowPickupMessage(player));
         }
 
         #endregion
