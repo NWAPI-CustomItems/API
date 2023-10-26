@@ -214,6 +214,8 @@ namespace NWAPI.CustomItems.API.Features
             if (!TrackedSerials.Contains(item.ItemSerial))
                 TrackedSerials.Add(item.ItemSerial);
 
+            AllCustomItemsSerials.Add(item.ItemSerial);
+
             if (displayMessage)
                 Timing.CallDelayed(.2f, () => ShowPickupMessage(player));
         }
@@ -372,6 +374,7 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         protected virtual void OnWaitingForPlayers()
         {
+            AllCustomItemsSerials.Clear();
             TrackedSerials.Clear();
         }
 
@@ -381,7 +384,8 @@ namespace NWAPI.CustomItems.API.Features
         /// <param name="player">The player to whom the pickup message will be displayed.</param>
         public virtual void ShowPickupMessage(Player player)
         {
-            player.ReceiveHint($"You picked up {Name}\n{Description}", 3);
+            var hint = Plugin.Instance.Config.PickupMessage;
+            player.ReceiveHint(string.Format(hint.Message, Name, Description), hint.Duration);
         }
 
         /// <summary>
@@ -390,7 +394,8 @@ namespace NWAPI.CustomItems.API.Features
         /// <param name="player">The player to whom the selection message will be displayed.</param>
         public virtual void ShowSelectMessage(Player player)
         {
-            player.ReceiveHint($"You selected {Name}\n{Description}", 3);
+            var hint = Plugin.Instance.Config.SelectMessage;
+            player.ReceiveHint(string.Format(hint.Message, Name, Description), hint.Duration);
         }
 
         // private events \\

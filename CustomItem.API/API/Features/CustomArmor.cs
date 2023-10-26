@@ -102,6 +102,7 @@ namespace NWAPI.CustomItems.API.Features
 
             Timing.CallDelayed(0.4f, () =>
             {
+                TrackedSerials.Remove(ev.Item.Info.Serial);
                 ev.Player.ReferenceHub.inventory.ServerRemoveItem(ev.Item.Info.Serial, null);
                 Give(ev.Player);
             });
