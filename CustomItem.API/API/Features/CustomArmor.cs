@@ -7,9 +7,11 @@ using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace NWAPI.CustomItems.API.Features
 {
@@ -20,16 +22,19 @@ namespace NWAPI.CustomItems.API.Features
     {
         /// <summary>
         /// Gets or sets the multiplier for stamina usage when wearing this armor.
+        /// Valid range is between 1.0 and 2.0.
         /// </summary>
         public virtual float StaminaUseMultiplier { get; set; } = 2f;
 
         /// <summary>
         /// Gets or sets the efficacy of the helmet when reducing damage.
+        /// Valid range is between 1 and 100.
         /// </summary>
         public virtual int HelmetEfficacy { get; set; } = 100;
 
         /// <summary>
         /// Gets or sets the efficacy of the vest when reducing damage.
+        /// Valid range is between 1 and 100.
         /// </summary>
         public virtual int VestEfficacy { get; set; } = 100;
 
