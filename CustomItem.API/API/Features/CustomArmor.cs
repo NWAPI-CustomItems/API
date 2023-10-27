@@ -5,13 +5,6 @@ using NWAPI.CustomItems.API.Extensions;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 
 namespace NWAPI.CustomItems.API.Features
 {

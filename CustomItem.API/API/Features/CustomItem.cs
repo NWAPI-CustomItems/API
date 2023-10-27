@@ -399,7 +399,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="pickup">The item pickup to check for association with a custom item.</param>
         /// <returns>True if the item pickup is associated with a custom item; otherwise, false.</returns>
-        public virtual bool Check(ItemPickup? pickup) 
+        public virtual bool Check(ItemPickup? pickup)
             => pickup is not null && TrackedSerials.Contains(pickup.Serial);
 
         /// <summary>
@@ -407,7 +407,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="pickupBase">The item pickup base to check for association with a custom item.</param>
         /// <returns>True if the item pickup base is associated with a custom item; otherwise, false.</returns>
-        public virtual bool Check(ItemPickupBase? pickupBase) 
+        public virtual bool Check(ItemPickupBase? pickupBase)
             => pickupBase is not null && TrackedSerials.Contains(pickupBase.Info.Serial);
 
         /// <summary>
@@ -415,7 +415,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="item">The item to check for association with a custom item.</param>
         /// <returns>True if the item is associated with a custom item; otherwise, false.</returns>
-        public virtual bool Check(Item? item) 
+        public virtual bool Check(Item? item)
             => item is not null && TrackedSerials.Contains(item.Serial);
 
         /// <summary>
@@ -423,7 +423,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="itemBase">The item base to check for association with a custom item.</param>
         /// <returns>True if the item base is associated with a custom item; otherwise, false.</returns>
-        public virtual bool Check(ItemBase? itemBase) 
+        public virtual bool Check(ItemBase? itemBase)
             => itemBase is not null && TrackedSerials.Contains(itemBase.ItemSerial);
 
         /// <summary>
@@ -431,7 +431,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="player">The player to check for holding a custom item.</param>
         /// <returns>True if the player is holding a custom item; otherwise, false.</returns>
-        public virtual bool Check(Player? player) 
+        public virtual bool Check(Player? player)
             => Check(player?.CurrentItem);
 
         /// <summary>
@@ -439,7 +439,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="serial">The serial number to check for association with a custom item.</param>
         /// <returns>True if the serial number is associated with a custom item; otherwise, false.</returns>
-        public virtual bool Check(ushort serial) 
+        public virtual bool Check(ushort serial)
             => TrackedSerials.Contains(serial);
         #endregion
 

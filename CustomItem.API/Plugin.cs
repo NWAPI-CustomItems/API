@@ -62,7 +62,7 @@ namespace NWAPI.CustomItems
             {
                 Log.Error($"Error on patching: {e}");
             }
-            
+
             PluginAPI.Events.EventManager.RegisterEvents(Instance, new Handlers.MapHandler());
         }
 
