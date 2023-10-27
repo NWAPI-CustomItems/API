@@ -16,33 +16,65 @@ using YamlDotNet.Serialization;
 namespace NWAPI.CustomItems.API.Features
 {
     /// <summary>
-    /// P A I N
+    /// Represents a base class for custom items.
     /// </summary>
     public abstract class CustomItem
     {
         private static readonly HashSet<CustomItemInfo?> LookupTable = new();
 
+        /// <summary>
+        /// Gets a collection of serial numbers for all custom items spawned.
+        /// </summary>
         public static HashSet<ushort> AllCustomItemsSerials = new();
 
+        /// <summary>
+        /// Gets a collection of registered custom items.
+        /// </summary>
         public static HashSet<CustomItem> Registered { get; } = new();
 
-        // API \\
+        /// <summary>
+        /// Gets or sets the unique identifier of the custom item.
+        /// </summary>
         public abstract uint Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the custom item.
+        /// </summary>
         public abstract string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the description of the custom item.
+        /// </summary>
         public abstract string Description { get; set; }
 
+        /// <summary>
+        /// Gets or sets the weight of the custom item.
+        /// </summary>
         public abstract float Weight { get; set; }
 
+        /// <summary>
+        /// Gets or sets the item type for the custom item.
+        /// </summary>
         public abstract ItemType ModelType { get; set; }
 
+        /// <summary>
+        /// Gets or sets the scale of the custom item. Default is (1, 1, 1).
+        /// </summary>
         public virtual Vector3 Scale { get; set; } = Vector3.one;
 
+        /// <summary>
+        /// Gets a collection of serial numbers for tracked custom items.
+        /// </summary>
         [YamlIgnore]
         public HashSet<ushort> TrackedSerials { get; } = new();
 
         #region Get
+
+        /// <summary>
+        /// Gets a <see cref="CustomItem"/> by its id.
+        /// </summary>
+        /// <param name="id">The unique identifier of the custom item.</param>
+        /// <returns>The retrieved custom item, if found; otherwise, null.</returns>
         public static CustomItem? Get(uint id)
         {
             if (LookupTable.TryGetValue(LookupTable.FirstOrDefault(c => c.HasValue && c.Value.Id == id), out var value) && value.HasValue)
@@ -53,6 +85,11 @@ namespace NWAPI.CustomItems.API.Features
             return null;
         }
 
+        /// <summary>
+        /// Gets a <see cref="CustomItem"/> by its name.
+        /// </summary>
+        /// <param name="name">The name of the custom item.</param>
+        /// <returns>The retrieved custom item, if found; otherwise, null.</returns>
         public static CustomItem? Get(string name)
         {
             if (LookupTable.TryGetValue(LookupTable.FirstOrDefault(c => c.HasValue && c.Value.Name == name), out var value) && value.HasValue)
@@ -63,6 +100,11 @@ namespace NWAPI.CustomItems.API.Features
             return null;
         }
 
+        /// <summary>
+        /// Gets a <see cref="CustomItem"/> by its .NET type.
+        /// </summary>
+        /// <param name="type">The .NET type of the custom item.</param>
+        /// <returns>The retrieved custom item, if found; otherwise, null.</returns>
         public static CustomItem? Get(Type type)
         {
             if (LookupTable.TryGetValue(LookupTable.FirstOrDefault(c => c.HasValue && c.Value.Type == type), out var value) && value.HasValue)
@@ -77,6 +119,12 @@ namespace NWAPI.CustomItems.API.Features
 
         #region Try get
 
+        /// <summary>
+        /// Tries to get a <see cref="CustomItem"/> by its id.
+        /// </summary>
+        /// <param name="id">The unique identifier of the custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if found; otherwise, null.</param>
+        /// <returns>True if the custom item is found; otherwise, false.</returns>
         public static bool TryGet(uint id, out CustomItem? customItem)
         {
             customItem = Get(id);
@@ -84,6 +132,12 @@ namespace NWAPI.CustomItems.API.Features
             return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to get a <see cref="CustomItem"/> by its name.
+        /// </summary>
+        /// <param name="name">The name of the custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if found; otherwise, null.</param>
+        /// <returns>True if the custom item is found; otherwise, false.</returns>
         public static bool TryGet(string name, out CustomItem? customItem)
         {
             customItem = null;
@@ -94,6 +148,12 @@ namespace NWAPI.CustomItems.API.Features
             return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to get a <see cref="CustomItem"/> by its .NET type.
+        /// </summary>
+        /// <param name="type">The .NET type of the custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if found; otherwise, null.</param>
+        /// <returns>True if the custom item is found; otherwise, false.</returns>
         public static bool TryGet(Type type, out CustomItem? customItem)
         {
             customItem = Get(type);
@@ -101,6 +161,12 @@ namespace NWAPI.CustomItems.API.Features
             return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to get a <see cref="CustomItem"/> from a player's current item.
+        /// </summary>
+        /// <param name="player">The player for whom to find the custom item in their hand.</param>
+        /// <param name="customItem">The retrieved custom item in the player's hand, if found; otherwise, null.</param>
+        /// <returns>True if the custom item is found in the player's hand; otherwise, false.</returns>
         public static bool TryGet(Player player, out CustomItem? customItem)
         {
             customItem = null;
@@ -108,9 +174,16 @@ namespace NWAPI.CustomItems.API.Features
             if (player is null)
                 return false;
 
-            return false;
+            customItem = Registered.FirstOrDefault(item => item.Check(player));
+            return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to get a collection of <see cref="CustomItem"/>s from a player's inventory.
+        /// </summary>
+        /// <param name="player">The player for whom to find custom items in their inventory.</param>
+        /// <param name="customItems">The retrieved collection of custom items in the player's inventory, if found; otherwise, null.</param>
+        /// <returns>True if custom items are found in the player's inventory; otherwise, false.</returns>
         public static bool TryGet(Player player, out IEnumerable<CustomItem>? customItems)
         {
             customItems = null;
@@ -118,10 +191,17 @@ namespace NWAPI.CustomItems.API.Features
             if (player is null)
                 return false;
 
+            customItems = Registered.Where(item => item.Check(player));
 
-            return false;
+            return customItems != null;
         }
 
+        /// <summary>
+        /// Tries to check if an <see cref="Item"/> is a <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="item">The item to check for being a custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if it is a custom item; otherwise, null.</param>
+        /// <returns>True if the item is a custom item; otherwise, false.</returns>
         public static bool TryGet(Item item, out CustomItem? customItem)
         {
             customItem = item is null ? null : Registered?.FirstOrDefault(i => i.TrackedSerials.Contains(item.Serial));
@@ -129,6 +209,12 @@ namespace NWAPI.CustomItems.API.Features
             return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to check if an <see cref="ItemBase"/> is a <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="item">The item base to check for being a custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if it is a custom item; otherwise, null.</param>
+        /// <returns>True if the item base is a custom item; otherwise, false.</returns>
         public static bool TryGet(ItemBase item, out CustomItem? customItem)
         {
             customItem = item is null ? null : Registered?.FirstOrDefault(i => i.TrackedSerials.Contains(item.ItemSerial));
@@ -136,6 +222,12 @@ namespace NWAPI.CustomItems.API.Features
             return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to check if an <see cref="ItemPickup"/> is a <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="pickup">The item pickup to check for being a custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if it is a custom item; otherwise, null.</param>
+        /// <returns>True if the item pickup is a custom item; otherwise, false.</returns>
         public static bool TryGet(ItemPickup pickup, out CustomItem? customItem)
         {
             customItem = pickup is null ? null : Registered?.FirstOrDefault(p => p.TrackedSerials.Contains(pickup.Serial));
@@ -143,6 +235,12 @@ namespace NWAPI.CustomItems.API.Features
             return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to check if an <see cref="ItemPickupBase"/> is a <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="pickup">The item pickup base to check for being a custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if it is a custom item; otherwise, null.</param>
+        /// <returns>True if the item pickup base is a custom item; otherwise, false.</returns>
         public static bool TryGet(ItemPickupBase pickup, out CustomItem? customItem)
         {
             customItem = pickup is null ? null : Registered?.FirstOrDefault(p => p.TrackedSerials.Contains(pickup.Info.Serial));
@@ -150,6 +248,12 @@ namespace NWAPI.CustomItems.API.Features
             return customItem != null;
         }
 
+        /// <summary>
+        /// Tries to check if a specified serial belongs to a <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="serial">The serial to check for belonging to a custom item.</param>
+        /// <param name="customItem">The retrieved custom item, if the serial belongs to a custom item; otherwise, null.</param>
+        /// <returns>True if the serial belongs to a custom item; otherwise, false.</returns>
         public static bool TryGet(ushort serial, out CustomItem? customItem)
         {
             customItem = Registered.FirstOrDefault(p => p.TrackedSerials.Contains(serial));
@@ -160,14 +264,45 @@ namespace NWAPI.CustomItems.API.Features
 
         #region Spawn
 
+        /// <summary>
+        /// Spawns an <see cref="CustomItem"/> pickup at the specified coordinates.
+        /// </summary>
+        /// <param name="x">The X-coordinate of the spawn location.</param>
+        /// <param name="y">The Y-coordinate of the spawn location.</param>
+        /// <param name="z">The Z-coordinate of the spawn location.</param>
+        /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
         public virtual ItemPickup? Spawn(float x, float y, float z) => Spawn(new(x, y, z));
 
+        /// <summary>
+        /// Spawns an <see cref="CustomItem"/> pickup at the specified position.
+        /// </summary>
+        /// <param name="position">The position at which to spawn the item pickup.</param>
+        /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
         public virtual ItemPickup? Spawn(Vector3 position) => Spawn(position);
 
+        /// <summary>
+        /// Spawns an <see cref="CustomItem"/> pickup at the specified position with an optional item owner.
+        /// </summary>
+        /// <param name="position">The position at which to spawn the item pickup.</param>
+        /// <param name="itemOwner">The optional owner of the item pickup.</param>
+        /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
         public virtual ItemPickup? Spawn(Vector3 position, Player? itemOwner = null) => Spawn(position, itemOwner);
 
+        /// <summary>
+        /// Spawns an <see cref="CustomItem"/> pickup at the position of a specified player with an optional item owner.
+        /// </summary>
+        /// <param name="player">The player whose position will be used for spawning.</param>
+        /// <param name="itemOwner">The optional owner of the item pickup.</param>
+        /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
         public virtual ItemPickup? Spawn(Player player, Player? itemOwner = null) => Spawn(player.Position, itemOwner);
 
+        /// <summary>
+        /// Spawns an <see cref="CustomItem"/> pickup at the specified position with an optional owner and rotation.
+        /// </summary>
+        /// <param name="position">The position at which to spawn the item pickup.</param>
+        /// <param name="owner">The optional owner of the item pickup.</param>
+        /// <param name="rotation">The rotation of the spawned item pickup.</param>
+        /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
         public virtual ItemPickup? Spawn(Vector3 position, Player? owner = null, Quaternion rotation = default)
         {
             if (ModelType == ItemType.None)
@@ -186,6 +321,12 @@ namespace NWAPI.CustomItems.API.Features
             return pickup;
         }
 
+        /// <summary>
+        /// Spawns multiple <see cref="ItemPickup"/>s at specified spawn points.
+        /// </summary>
+        /// <param name="spawnPoints">An enumeration of spawn points.</param>
+        /// <param name="amount">The number of items to spawn.</param>
+        /// <returns>The total number of items successfully spawned.</returns>
         public virtual uint Spawn(IEnumerable<Vector3> spawnPoints, uint amount)
         {
             uint spawned = 0;
@@ -197,6 +338,9 @@ namespace NWAPI.CustomItems.API.Features
 
         #endregion
 
+        /// <summary>
+        /// Spawns all items at their designated spawn locations.
+        /// </summary>
         public virtual void SpawnAll()
         {
             // do spawn logic to spawn the item in they spawn locations.
@@ -204,6 +348,11 @@ namespace NWAPI.CustomItems.API.Features
 
         #region Give
 
+        /// <summary>
+        /// Gives the specified <see cref="Player"/> the custom item.
+        /// </summary>
+        /// <param name="player">The player to receive the custom item.</param>
+        /// <param name="displayMessage">A boolean indicating whether to display a pickup message; true by default.</param>
         public virtual void Give(Player player, bool displayMessage = true)
         {
             var item = player.AddItem(ModelType);
@@ -220,21 +369,78 @@ namespace NWAPI.CustomItems.API.Features
                 Timing.CallDelayed(.2f, () => ShowPickupMessage(player));
         }
 
+        /// <summary>
+        /// Gives the specified <see cref="ReferenceHub"/> the custom item.
+        /// </summary>
+        /// <param name="hub">The reference hub to receive the custom item.</param>
+        /// <param name="displayMessage">A boolean indicating whether to display a pickup message; true by default.</param>
+        public virtual void Give(ReferenceHub hub, bool displayMessage = true)
+        {
+            var item = hub.inventory.ServerAddItem(ModelType, 0);
+
+            if (item is null)
+                return;
+
+            if (!TrackedSerials.Contains(item.ItemSerial))
+                TrackedSerials.Add(item.ItemSerial);
+
+            AllCustomItemsSerials.Add(item.ItemSerial);
+
+            if (displayMessage)
+                Timing.CallDelayed(.2f, () => ShowPickupMessage(Player.Get(hub)));
+        }
+
         #endregion
 
         #region Check
 
-        public virtual bool Check(ItemPickup? pickup) => pickup is not null && TrackedSerials.Contains(pickup.Serial);
+        /// <summary>
+        /// Checks if a specified <see cref="ItemPickup"/> is associated with a custom item.
+        /// </summary>
+        /// <param name="pickup">The item pickup to check for association with a custom item.</param>
+        /// <returns>True if the item pickup is associated with a custom item; otherwise, false.</returns>
+        public virtual bool Check(ItemPickup? pickup) 
+            => pickup is not null && TrackedSerials.Contains(pickup.Serial);
 
-        public virtual bool Check(ItemPickupBase? pickupBase) => pickupBase is not null && TrackedSerials.Contains(pickupBase.Info.Serial);
+        /// <summary>
+        /// Checks if a specified <see cref="ItemPickupBase"/> is associated with a custom item.
+        /// </summary>
+        /// <param name="pickupBase">The item pickup base to check for association with a custom item.</param>
+        /// <returns>True if the item pickup base is associated with a custom item; otherwise, false.</returns>
+        public virtual bool Check(ItemPickupBase? pickupBase) 
+            => pickupBase is not null && TrackedSerials.Contains(pickupBase.Info.Serial);
 
-        public virtual bool Check(Item? item) => item is not null && TrackedSerials.Contains(item.Serial);
+        /// <summary>
+        /// Checks if a specified <see cref="Item"/> is associated with a custom item.
+        /// </summary>
+        /// <param name="item">The item to check for association with a custom item.</param>
+        /// <returns>True if the item is associated with a custom item; otherwise, false.</returns>
+        public virtual bool Check(Item? item) 
+            => item is not null && TrackedSerials.Contains(item.Serial);
 
-        public virtual bool Check(ItemBase? itemBase) => itemBase is not null && TrackedSerials.Contains(itemBase.ItemSerial);
+        /// <summary>
+        /// Checks if a specified <see cref="ItemBase"/> is associated with a custom item.
+        /// </summary>
+        /// <param name="itemBase">The item base to check for association with a custom item.</param>
+        /// <returns>True if the item base is associated with a custom item; otherwise, false.</returns>
+        public virtual bool Check(ItemBase? itemBase) 
+            => itemBase is not null && TrackedSerials.Contains(itemBase.ItemSerial);
 
-        public virtual bool Check(Player? player) => Check(player?.CurrentItem);
+        /// <summary>
+        /// Checks if a specified <see cref="Player"/> is currently holding a custom item.
+        /// </summary>
+        /// <param name="player">The player to check for holding a custom item.</param>
+        /// <returns>True if the player is holding a custom item; otherwise, false.</returns>
+        public virtual bool Check(Player? player) 
+            => Check(player?.CurrentItem);
 
-        public virtual bool Check(ushort serial) => TrackedSerials.Contains(serial);
+        /// <summary>
+        /// Checks if a specified serial number is associated with a custom item.
+        /// </summary>
+        /// <param name="serial">The serial number to check for association with a custom item.</param>
+        /// <returns>True if the serial number is associated with a custom item; otherwise, false.</returns>
+        public virtual bool Check(ushort serial) 
+            => TrackedSerials.Contains(serial);
         #endregion
 
         // internal methods \\
@@ -293,36 +499,65 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         // public events \\
+
+        /// <summary>
+        /// Event handler called when the owner of the custom item changes their role.
+        /// </summary>
+        /// <param name="ev">The event data for the role change.</param>
         public virtual void OnOwnerChangeRole(PlayerChangeRoleEvent ev)
         {
 
         }
 
+        /// <summary>
+        /// Event handler called when the owner of the custom item is dying.
+        /// </summary>
+        /// <param name="ev">The event data for the player's dying event.</param>
         public virtual void OnOwnerDying(PlayerDyingEvent ev)
         {
 
         }
 
+        /// <summary>
+        /// Event handler called when the owner of the custom item escapes.
+        /// </summary>
+        /// <param name="ev">The event data for the player's escape event.</param>
         public virtual void OnOwnerEscape(PlayerEscapeEvent ev)
         {
 
         }
 
+        /// <summary>
+        /// Event handler called when the owner of the custom item is being handcuffed.
+        /// </summary>
+        /// <param name="ev">The event data for the handcuffing event.</param>
         public virtual void OnOwnerHanducuffing(PlayerHandcuffEvent ev)
         {
-            //its always be the target.
+            // It's always the target handcuffed.
         }
 
-        public virtual void OnDropped(PlayerDroppedItemEvent ev)
+        /// <summary>
+        /// Event handler called when the owner of the custom item drops the item.
+        /// </summary>
+        /// <param name="ev">The event data for the item dropping event.</param>
+        public virtual bool OnDropped(PlayerDroppedItemEvent ev)
         {
-
+            return true;
         }
 
+        /// <summary>
+        /// Event handler called when the owner of the custom item picks up an item from a search.
+        /// </summary>
+        /// <param name="ev">The event data for the item pickup event.</param>
         public virtual void OnPickedup(PlayerSearchedPickupEvent ev)
         {
             ShowPickupMessage(ev.Player);
         }
 
+        /// <summary>
+        /// Event handler called when the owner of the custom item changes their held item.
+        /// </summary>
+        /// <param name="ev">The event data for the item change event.</param>
         public virtual void OnChangeItem(PlayerChangeItemEvent ev)
         {
             ShowSelectMessage(ev.Player);
@@ -382,20 +617,20 @@ namespace NWAPI.CustomItems.API.Features
         /// Displays a pickup message to the specified player.
         /// </summary>
         /// <param name="player">The player to whom the pickup message will be displayed.</param>
-        public virtual void ShowPickupMessage(Player player)
+        public virtual void ShowPickupMessage(Player? player)
         {
             var hint = Plugin.Instance.Config.PickupMessage;
-            player.ReceiveHint(string.Format(hint.Message, Name, Description), hint.Duration);
+            player?.ReceiveHint(string.Format(hint.Message, Name, Description), hint.Duration);
         }
 
         /// <summary>
         /// Displays a selection message to the specified player.
         /// </summary>
         /// <param name="player">The player to whom the selection message will be displayed.</param>
-        public virtual void ShowSelectMessage(Player player)
+        public virtual void ShowSelectMessage(Player? player)
         {
             var hint = Plugin.Instance.Config.SelectMessage;
-            player.ReceiveHint(string.Format(hint.Message, Name, Description), hint.Duration);
+            player?.ReceiveHint(string.Format(hint.Message, Name, Description), hint.Duration);
         }
 
         // private events \\
@@ -442,7 +677,6 @@ namespace NWAPI.CustomItems.API.Features
                 OnOwnerDying(ev);
 
                 Spawn(position, ev.Player);
-
             }
         }
 
@@ -489,17 +723,17 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         [PluginEvent]
-        private void OnInternalDropped(PlayerDroppedItemEvent ev)
+        private bool OnInternalDropped(PlayerDroppedItemEvent ev)
         {
             if (!Check(ev.Item))
-                return;
+                return true;
 
             if (ev.Item.NetworkInfo.WeightKg != Weight)
             {
                 ev.Item.NetworkInfo = new(ev.Item.NetworkInfo.ItemId, Weight, ev.Item.NetworkInfo.Serial);
             }
 
-            OnDropped(ev);
+            return OnDropped(ev);
         }
 
         [PluginEvent]
@@ -523,5 +757,17 @@ namespace NWAPI.CustomItems.API.Features
 
         /// <inheritdoc/>
         public override string ToString() => $"{Name} - {ModelType} | {Id} | {Description}";
+
+        /// <inheritdoc/>
+        public static implicit operator CustomItem?(uint id)
+        {
+            return Get(id);
+        }
+
+        /// <inheritdoc/>
+        public static implicit operator CustomItem?(string name)
+        {
+            return Get(name);
+        }
     }
 }

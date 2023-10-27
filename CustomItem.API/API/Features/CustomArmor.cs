@@ -24,7 +24,7 @@ namespace NWAPI.CustomItems.API.Features
         /// Gets or sets the multiplier for stamina usage when wearing this armor.
         /// Valid range is between 1.0 and 2.0.
         /// </summary>
-        public virtual float StaminaUseMultiplier { get; set; } = 2f;
+        public virtual float StaminaUseMultiplier { get; set; } = 2.0f;
 
         /// <summary>
         /// Gets or sets the efficacy of the helmet when reducing damage.
