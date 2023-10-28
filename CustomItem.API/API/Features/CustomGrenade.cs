@@ -57,7 +57,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="ev">The GrenadeExplodedEvent that contains information about the explosion.</param>
         /// <returns>True if the explosion is allowed to proceed, false if it should be canceled.</returns>
-        public virtual bool OnExplode(GrenadeExplodedEvent ev)
+        public virtual bool OnExploding(GrenadeExplodedEvent ev)
         {
             return true;
         }
@@ -80,7 +80,7 @@ namespace NWAPI.CustomItems.API.Features
             if (ev.Grenade is null || !Check(ev.Grenade))
                 return true;
 
-            return OnExplode(ev);
+            return OnExploding(ev);
         }
 
         [PluginEvent]

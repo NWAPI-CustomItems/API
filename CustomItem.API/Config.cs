@@ -1,4 +1,6 @@
-﻿namespace NWAPI.CustomItems
+﻿using System.ComponentModel;
+
+namespace NWAPI.CustomItems
 {
     /// <summary>
     /// Represents the configuration settings for the CustomItems API plugin.
@@ -8,23 +10,27 @@
         /// <summary>
         /// Gets or sets a value indicating whether the plugin is in debug mode.
         /// </summary>
+        [Description("Set to 'true' to enable logs debug in the code.")]
         public bool DebugMode { get; set; } = false;
 
         /// <summary>
         /// Gets or sets a value indicating whether the CustomItems API is enabled.
         /// </summary>
+        [Description("Set to 'true' to enable the CustomItems API.")]
         public bool IsEnabled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the hint message to display when a player picks up a custom item.
         /// Use placeholders {0} and {1} for item name and description.
         /// </summary>
+        [Description("Hint message displayed when a player picks up a custom item. Use placeholders {0} and {1} for item name and description.")]
         public HintMessage PickupMessage { get; set; } = new HintMessage($"You have picked up a {0}\n{1}", 3);
 
         /// <summary>
         /// Gets or sets the hint message to display when a player selects a custom item.
         /// Use placeholders {0} and {1} for item name and description.
         /// </summary>
+        [Description("Hint message displayed when a player selects a custom item. Use placeholders {0} and {1} for item name and description.")]
         public HintMessage SelectMessage { get; set; } = new HintMessage($"You have selected a {0}\n{1}", 5);
     }
 
@@ -48,11 +54,13 @@
         /// <summary>
         /// Gets or sets the text of the hint message.
         /// </summary>
+        [Description("The text of the hint message.")]
         public string Message { get; set; }
 
         /// <summary>
         /// Gets or sets the duration in seconds for which the hint message will be displayed.
         /// </summary>
+        [Description("The duration in seconds for which the hint message will be displayed.")]
         public float Duration { get; set; }
     }
 
