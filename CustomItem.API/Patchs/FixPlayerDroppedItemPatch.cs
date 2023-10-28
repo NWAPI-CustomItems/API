@@ -54,12 +54,6 @@ namespace NWAPI.CustomItems.Patchs
         // Doing Northwood's job...
         private static bool RunNwMethod(ReferenceHub hub, ItemPickupBase? item)
         {
-            if (item == null)
-            {
-                PluginAPI.Events.EventManager.ExecuteEvent(new PlayerDroppedItemEvent(hub, null));
-                return true;
-            }
-
             return PluginAPI.Events.EventManager.ExecuteEvent(new PlayerDroppedItemEvent(hub, item));
         }
     }
