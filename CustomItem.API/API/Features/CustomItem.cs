@@ -2,6 +2,7 @@
 using InventorySystem.Items;
 using InventorySystem.Items.Pickups;
 using MEC;
+using NWAPI.CustomItems.API.Spawn;
 using NWAPI.CustomItems.API.Struct;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
@@ -56,6 +57,11 @@ namespace NWAPI.CustomItems.API.Features
         /// Gets or sets the item type for the custom item.
         /// </summary>
         public abstract ItemType ModelType { get; set; }
+
+        /// <summary>
+        /// Gets or sets the list of spawn locations and chances for each one.
+        /// </summary>
+        public abstract SpawnProperties? SpawnProperties { get; set; }
 
         /// <summary>
         /// Gets or sets the scale of the custom item. Default is (1, 1, 1).
@@ -145,6 +151,10 @@ namespace NWAPI.CustomItems.API.Features
                 return false;
 
             customItem = Get(name);
+
+            if (customItem is null && uint.TryParse(name, out var id))
+                customItem = Get(id);
+
             return customItem != null;
         }
 

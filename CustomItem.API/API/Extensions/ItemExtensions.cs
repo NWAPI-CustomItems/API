@@ -16,7 +16,7 @@ namespace NWAPI.CustomItems.API.Extensions
     /// Provides a collection of extension methods for working with item-related objects.
     /// These methods allow for additional functionality and operations on item-related types.
     /// </summary>
-    public static class ItemExtension
+    public static class ItemExtensions
     {
         /// <summary>
         /// Checks if the specified <see cref="ItemType"/> is a keycard.
