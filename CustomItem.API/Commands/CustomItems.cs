@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NWAPI.CustomItems.Commands
 {
-    public class CustomItems : ParentCommand
+    public sealed class CustomItems : ParentCommand
     {
         public CustomItems() => LoadGeneratedCommands();
 

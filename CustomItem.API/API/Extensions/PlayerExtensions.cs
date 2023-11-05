@@ -1,6 +1,8 @@
-﻿using PlayerRoles;
+﻿using InventorySystem.Items.ThrowableProjectiles;
+using PlayerRoles;
 using PlayerRoles.FirstPersonControl;
 using PlayerRoles.FirstPersonControl.Spawnpoints;
+using PluginAPI.Core;
 using UnityEngine;
 
 namespace NWAPI.CustomItems.API.Extensions
@@ -27,6 +29,20 @@ namespace NWAPI.CustomItems.API.Extensions
                 return Vector3.zero;
 
             return pos;
+        }
+
+        /// <summary>
+        /// Throws a throwable item with the option to apply full force.
+        /// </summary>
+        /// <param name="player">The player throwing the item.</param>
+        /// <param name="item">The throwable item to be thrown.</param>
+        /// <param name="fullForce">Indicates whether the item should be thrown with full force.</param>
+        /// <returns>The thrown throwable item.</returns>
+        public static ThrowableItem ThrowItem(this Player player, ThrowableItem item, bool fullForce)
+        {
+            item.Owner = player.ReferenceHub;
+            item.ThrowItem(fullForce);
+            return item;
         }
     }
 }

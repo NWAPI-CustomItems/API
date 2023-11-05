@@ -65,6 +65,8 @@ namespace NWAPI.CustomItems
             }
 
             PluginAPI.Events.EventManager.RegisterEvents(Instance, new Handlers.MapHandler());
+
+            Log.Warning($"CustomItemsAPI is Loaded");
         }
 
         [PluginUnload]

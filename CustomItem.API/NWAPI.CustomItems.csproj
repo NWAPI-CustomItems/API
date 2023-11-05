@@ -3,7 +3,7 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
-        <AssemblyName>CustomItem.API</AssemblyName>
+        <AssemblyName>NWAPI.CustomItem.API</AssemblyName>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <TargetFramework>net48</TargetFramework>
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>

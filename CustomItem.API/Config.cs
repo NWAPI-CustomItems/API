@@ -24,14 +24,14 @@ namespace NWAPI.CustomItems
         /// Use placeholders {0} and {1} for item name and description.
         /// </summary>
         [Description("Hint message displayed when a player picks up a custom item. Use placeholders {0} and {1} for item name and description.")]
-        public HintMessage PickupMessage { get; set; } = new HintMessage($"You have picked up a {0}\n{1}", 3);
+        public HintMessage PickupMessage { get; set; } = new HintMessage("You have picked up a {0}\n{1}", 3f);
 
         /// <summary>
         /// Gets or sets the hint message to display when a player selects a custom item.
         /// Use placeholders {0} and {1} for item name and description.
         /// </summary>
         [Description("Hint message displayed when a player selects a custom item. Use placeholders {0} and {1} for item name and description.")]
-        public HintMessage SelectMessage { get; set; } = new HintMessage($"You have selected a {0}\n{1}", 5);
+        public HintMessage SelectMessage { get; set; } = new HintMessage("You have selected a {0}\n{1}", 5f);
     }
 
 
@@ -40,6 +40,12 @@ namespace NWAPI.CustomItems
     /// </summary>
     public class HintMessage
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HintMessage"/> class.
+        /// </summary>
+        public HintMessage() : this(string.Empty) 
+        { }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HintMessage"/> class.
         /// </summary>
@@ -62,6 +68,9 @@ namespace NWAPI.CustomItems
         /// </summary>
         [Description("The duration in seconds for which the hint message will be displayed.")]
         public float Duration { get; set; }
+
+        public override string ToString() => $"message \"{Message}\" with duration of {Duration}";
+        
     }
 
 }
