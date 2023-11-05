@@ -11,6 +11,8 @@ using PluginAPI.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using NWAPI.CustomItems.API.Features.Attributes;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
@@ -452,6 +454,18 @@ namespace NWAPI.CustomItems.API.Features
         public virtual bool Check(ushort serial)
             => TrackedSerials.Contains(serial);
         #endregion
+
+        public static List<CustomItem> RegisterItems()
+        {
+            var assembly = Assembly.GetCallingAssembly();
+            var items = assembly.GetTypes()
+                .Where(t => (t.BaseType == typeof(CustomItem) || t.IsSubclassOf(typeof(CustomItem))) &&
+                            t.GetCustomAttribute(typeof(CustomItemAttribute)) is not null)
+                .Select(itemType => (CustomItem)Activator.CreateInstance(itemType))
+                .Where(customItem => customItem.TryRegister()).ToList();
+
+            return items;
+        }
 
         // internal methods \\
         internal bool TryRegister()

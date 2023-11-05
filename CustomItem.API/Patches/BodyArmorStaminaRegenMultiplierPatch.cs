@@ -2,7 +2,7 @@
 using InventorySystem.Items.Armor;
 using NWAPI.CustomItems.API.Features;
 
-namespace NWAPI.CustomItems.Patchs
+namespace NWAPI.CustomItems.Patches
 {
     [HarmonyPatch(typeof(BodyArmor), nameof(BodyArmor.StaminaRegenMultiplier), MethodType.Getter)]
     public class BodyArmorStaminaRegenMultiplierPatch

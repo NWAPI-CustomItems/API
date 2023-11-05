@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 using static HarmonyLib.AccessTools;
 
-namespace NWAPI.CustomItems.Patchs
+namespace NWAPI.CustomItems.Patches
 {
     /// <summary>
     /// The most horrible transpiler you will ever see in your life.

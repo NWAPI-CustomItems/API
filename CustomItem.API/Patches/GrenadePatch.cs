@@ -4,7 +4,7 @@ using Mirror;
 using NWAPI.CustomItems.API.Components;
 using NWAPI.CustomItems.API.Features;
 
-namespace NWAPI.CustomItems.Patchs
+namespace NWAPI.CustomItems.Patches
 {
     [HarmonyPatch(typeof(TimeGrenade), nameof(TimeGrenade.ServerActivate))]
     public class GrenadePatch
