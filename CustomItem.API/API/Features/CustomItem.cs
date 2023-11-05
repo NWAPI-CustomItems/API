@@ -1,7 +1,12 @@
 ﻿using InventorySystem;
 using InventorySystem.Items;
+using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Pickups;
+using MapGeneration.Distributors;
 using MEC;
+using NWAPI.CustomItems.API.Enums;
+using NWAPI.CustomItems.API.Extensions;
+using NWAPI.CustomItems.API.Features.Attributes;
 using NWAPI.CustomItems.API.Spawn;
 using NWAPI.CustomItems.API.Struct;
 using PluginAPI.Core;
@@ -12,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using NWAPI.CustomItems.API.Features.Attributes;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
@@ -333,29 +337,120 @@ namespace NWAPI.CustomItems.API.Features
             return pickup;
         }
 
+        // All item spawn methods belong to Exiled and I didn't make any of the code related to that, it all belongs to the person who created it from the Exiled team.
+        // -----------------------------------------------------------------------
+        // <copyright file="CustomItem.cs" company="Exiled Team">
+        // Copyright (c) Exiled Team. All rights reserved.
+        // Licensed under the CC BY-SA 3.0 license.
+        // </copyright>
+        // -----------------------------------------------------------------------
+
         /// <summary>
         /// Spawns multiple <see cref="ItemPickup"/>s at specified spawn points.
         /// </summary>
         /// <param name="spawnPoints">An enumeration of spawn points.</param>
         /// <param name="amount">The number of items to spawn.</param>
         /// <returns>The total number of items successfully spawned.</returns>
-        public virtual uint Spawn(IEnumerable<Vector3> spawnPoints, uint amount)
+        public virtual uint Spawn(IEnumerable<SpawnPoint> spawnPoints, uint amount)
         {
             uint spawned = 0;
 
             // Do the logic for spawning the items based in spawpoints
+
+            foreach (SpawnPoint spawnPoint in spawnPoints)
+            {
+                Log.Debug($"Attempting to spawn {Name} at {spawnPoint.Position}.", Plugin.Instance.Config.DebugMode);
+
+                if (Plugin.Random.NextDouble() * 100 >= spawnPoint.Chance || (amount > 0 && spawned >= amount))
+                    continue;
+
+                spawned++;
+
+                if (spawnPoint is DynamicSpawnPoint dynamicSpawnPoint && dynamicSpawnPoint.Location == SpawnLocationType.InsideLocker)
+                {
+                    for (int i = 0; i < 50; i++)
+                    {
+                        if (Map.Lockers is null)
+                        {
+                            Log.Debug($"{nameof(Spawn)}: Locker list is null.", Plugin.Instance.Config.DebugMode);
+                            continue;
+                        }
+
+                        Locker locker = Map.Lockers.ToArray()[Plugin.Random.Next(Map.Lockers.Count)];
+
+                        if (locker is null)
+                        {
+                            Log.Debug($"{nameof(Spawn)}: Selected locker is null.", Plugin.Instance.Config.DebugMode);
+                            continue;
+                        }
+
+                        if (locker.Loot is null)
+                        {
+                            Log.Debug($"{nameof(Spawn)}: Invalid locker location. Attempting to find a new one..", Plugin.Instance.Config.DebugMode);
+                            continue;
+                        }
+
+                        if (locker.Chambers is null)
+                        {
+                            Log.Debug($"{nameof(Spawn)}: Locker chambers is null", Plugin.Instance.Config.DebugMode);
+                            continue;
+                        }
+
+                        LockerChamber chamber = locker.Chambers[Plugin.Random.Next(Mathf.Max(0, locker.Chambers.Length - 1))];
+
+                        if (chamber is null)
+                        {
+                            Log.Debug($"{nameof(Spawn)}: chamber is null", Plugin.Instance.Config.DebugMode);
+                            continue;
+                        }
+
+                        Vector3 position = chamber._spawnpoint.transform.position;
+                        Spawn(position, null);
+                        Log.Debug($"Spawned {Name} at {position}", Plugin.Instance.Config.DebugMode);
+
+                        break;
+                    }
+                }
+                else if (spawnPoint is RoleSpawnPoint roleSpawnPoint)
+                {
+                    Spawn(roleSpawnPoint.RoleType.GetRandomSpawnLocation(), null);
+                }
+                else
+                {
+                    ItemPickup? pickup = Spawn(spawnPoint.Position, null);
+                    if (pickup?.OriginalObject is FirearmPickup firearmPickup && this is CustomWeapon customWeapon)
+                    {
+                        firearmPickup.Status = new FirearmStatus(customWeapon.ClipSize, firearmPickup.Status.Flags, firearmPickup.Status.Attachments);
+                        firearmPickup.NetworkStatus = firearmPickup.Status;
+                    }
+
+                    Log.Debug($"Spawned {Name} at {spawnPoint.Position}", Plugin.Instance.Config.DebugMode);
+                }
+                return spawned;
+            }
 
             return spawned;
         }
 
         #endregion
 
+        // All item spawn methods belong to Exiled and I didn't make any of the code related to that, it all belongs to the person who created it from the Exiled team.
+        // -----------------------------------------------------------------------
+        // <copyright file="CustomItem.cs" company="Exiled Team">
+        // Copyright (c) Exiled Team. All rights reserved.
+        // Licensed under the CC BY-SA 3.0 license.
+        // </copyright>
+        // -----------------------------------------------------------------------
+
         /// <summary>
         /// Spawns all items at their designated spawn locations.
         /// </summary>
         public virtual void SpawnAll()
         {
-            // do spawn logic to spawn the item in they spawn locations.
+            if (SpawnProperties is null)
+                return;
+
+            Spawn(SpawnProperties.StaticSpawnPoints, Math.Min(0, SpawnProperties.Limit - Math.Min(0, Spawn(SpawnProperties.DynamicSpawnPoints, SpawnProperties.Limit) - Spawn(SpawnProperties.RoleSpawnPoints, SpawnProperties.Limit))));
         }
 
         #region Give
@@ -455,6 +550,11 @@ namespace NWAPI.CustomItems.API.Features
             => TrackedSerials.Contains(serial);
         #endregion
 
+        /// <summary>
+        /// Registers custom items defined in the calling assembly by looking for types
+        /// that inherit from CustomItem and are marked with the CustomItemAttribute.
+        /// </summary>
+        /// <returns>A list of registered CustomItem instances.</returns>
         public static List<CustomItem> RegisterItems()
         {
             var assembly = Assembly.GetCallingAssembly();
@@ -465,6 +565,39 @@ namespace NWAPI.CustomItems.API.Features
                 .Where(customItem => customItem.TryRegister()).ToList();
 
             return items;
+        }
+
+        /// <summary>
+        /// Unregisters custom items that were previously registered in the calling assembly.
+        /// </summary>
+        /// <returns>A list of unregistered CustomItem instances, or null if unregistration failed.</returns>
+        public static List<CustomItem?> UnRegisterItems()
+        {
+            List<CustomItem?> customItems = new();
+            var assembly = Assembly.GetCallingAssembly();
+            foreach (var item in Registered.Where(i => assembly.GetTypes().Contains(i.GetType())))
+            {
+                item?.TryUnregister();
+                customItems.Add(item);
+            }
+
+            return customItems;
+        }
+
+        /// <summary>
+        /// Unregisters all custom items that have been previously registered.
+        /// </summary>
+        /// <returns>A list of unregistered CustomItem instances, or null if unregistration failed.</returns>
+        public static List<CustomItem?> UnRegisterAllItems()
+        {
+            List<CustomItem?> customItems = new();
+            foreach (var item in Registered)
+            {
+                item?.TryUnregister();
+                customItems.Add(item);
+            }
+
+            return customItems;
         }
 
         // internal methods \\
@@ -631,7 +764,7 @@ namespace NWAPI.CustomItems.API.Features
         /// Clears the hashset of item serials and Pickup serials when the server is waiting for players.
         /// </summary>
         [PluginEvent]
-        protected virtual void OnWaitingForPlayers()
+        protected virtual void OnWaitingForPlayers(WaitingForPlayersEvent _)
         {
             AllCustomItemsSerials.Clear();
             TrackedSerials.Clear();

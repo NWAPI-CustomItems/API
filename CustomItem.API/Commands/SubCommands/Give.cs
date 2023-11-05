@@ -1,13 +1,9 @@
 ﻿using CommandSystem;
 using NWAPI.CustomItems.API.Features;
 using PluginAPI.Core;
-using PluginAPI.Core.Items;
 using RemoteAdmin;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NWAPI.CustomItems.Commands.SubCommands
 {
@@ -53,9 +49,9 @@ namespace NWAPI.CustomItems.Commands.SubCommands
                 return false;
             }
 
-            if(arguments.Count is 1)
+            if (arguments.Count is 1)
             {
-                if(sender is PlayerCommandSender)
+                if (sender is PlayerCommandSender)
                 {
                     var player = Player.Get(sender);
 
@@ -80,7 +76,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
                     {
                         var players = Player.GetPlayers().Where(CanReceiveItem).ToList();
 
-                        foreach(var player in players)
+                        foreach (var player in players)
                             customItem?.Give(player);
 
                         response = $" Custom item {customItem?.Name} given to all players who can receive them ({players.Count} players).";
@@ -100,7 +96,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
                             return false;
                         }
 
-                        if(!CanReceiveItem(player))
+                        if (!CanReceiveItem(player))
                         {
                             response = $" {player.LogName} cannot receive a custom item.";
                             return false;

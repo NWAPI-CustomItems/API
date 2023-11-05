@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-// I am too lazy to make my own spawns method so with your permission I will use this.
+﻿// I am too lazy to make my own spawns method so with your permission I will use this.
 // -----------------------------------------------------------------------
 // <copyright file="SpawnLocationType.cs" company="Exiled Team">
 // Copyright (c) Exiled Team. All rights reserved.

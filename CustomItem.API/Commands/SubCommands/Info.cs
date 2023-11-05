@@ -1,10 +1,6 @@
 ﻿using CommandSystem;
 using NWAPI.CustomItems.API.Features;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NWAPI.CustomItems.Commands.SubCommands
 {
@@ -37,13 +33,13 @@ namespace NWAPI.CustomItems.Commands.SubCommands
                 return false;
             }
 
-            if(!CustomItem.TryGet(arguments.At(0), out CustomItem? customItem))
+            if (!CustomItem.TryGet(arguments.At(0), out CustomItem? customItem))
             {
                 response = $" {arguments.At(0)} is not a valid custom item";
                 return false;
             }
 
-            response = 
+            response =
                 $"Name: {customItem?.Name}\n" +
                 $"Description: {customItem?.Description}\n" +
                 $"Id: {customItem?.Id}\n" +

@@ -1,10 +1,6 @@
 ﻿using NWAPI.CustomItems.API.Extensions;
 using PlayerRoles;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
@@ -31,7 +27,8 @@ namespace NWAPI.CustomItems.API.Spawn
 
         /// <inheritdoc/>
         [YamlIgnore]
-        public override Vector3 Position {
+        public override Vector3 Position
+        {
             get => RoleType.GetRandomSpawnLocation();
             set => throw new InvalidOperationException("The position of a RoleSpawnPoint cannot be changed.");
         }

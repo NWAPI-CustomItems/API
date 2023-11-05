@@ -3,12 +3,7 @@ using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Features;
 using PluginAPI.Core;
-using PluginAPI.Core.Items;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace NWAPI.CustomItems.Commands.SubCommands

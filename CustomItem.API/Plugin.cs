@@ -2,7 +2,6 @@
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;
-using System.Linq;
 
 namespace NWAPI.CustomItems
 {
@@ -20,6 +19,11 @@ namespace NWAPI.CustomItems
         /// Gets the Harmony instance used for patching and unpatching.
         /// </summary>
         public static Harmony Harmony { get; private set; } = null!;
+
+        /// <summary>
+        /// Gets the initialized global random class.
+        /// </summary>
+        public static System.Random Random { get; } = new();
 
         /// <summary>
         /// Plugin config.
@@ -48,9 +52,6 @@ namespace NWAPI.CustomItems
             if (!Config.IsEnabled)
             {
                 Log.Warning("NWAPI.CustomItems.API has been disabled due to configuration settings.");
-
-                var handler = PluginAPI.Loader.AssemblyLoader.InstalledPlugins.FirstOrDefault(p => p.GetType() == this.GetType());
-                handler?.Unload();
                 return;
             }
 
