@@ -68,6 +68,8 @@ namespace NWAPI.CustomItems.API.Features
                 pickup.OriginalObject.PreviousOwner = new(itemOwner.ReferenceHub);
 
             TrackedSerials.Add(pickup.Serial);
+            AllCustomItemsSerials.Add(pickup.Serial);
+            pickup.Spawn();
 
             return pickup;
         }
@@ -116,6 +118,32 @@ namespace NWAPI.CustomItems.API.Features
         /// <returns>True if reloading is allowed to proceed, false if it should be canceled.</returns>
         protected virtual bool OnReloading(PlayerReloadWeaponEvent ev)
         {
+            byte remainingClip = ev.Firearm.Status.Ammo;
+
+            if (remainingClip >= ClipSize)
+                return false;
+
+            var ammoType = ev.Firearm.AmmoType;
+
+            if (!(ev.Player.AmmoBag.TryGetValue(ammoType, out var value) && value > 0))
+                return false;
+
+            ev.Player.Connection.Send(new RequestMessage(ev.Firearm.ItemSerial, RequestType.Reload));
+            byte amountToReload = (byte)Math.Min(ClipSize - remainingClip, ev.Player.AmmoBag[ammoType]);
+
+            if (amountToReload <= 0)
+                return false;
+
+            ev.Player.ReferenceHub.playerEffectsController.GetEffect<CustomPlayerEffects.Invisible>().Intensity = 0;
+            ev.Player.AmmoBag[ammoType] -= amountToReload;
+            ev.Player.ReferenceHub.inventory.SendAmmoNextFrame = true;
+
+            FirearmStatusFlags flags = ev.Firearm.Status.Flags;
+            if ((flags & FirearmStatusFlags.MagazineInserted) == 0)
+            {
+                flags |= FirearmStatusFlags.MagazineInserted;
+            }
+            ev.Firearm.Status = new((byte)(ev.Firearm.Status.Ammo + amountToReload), flags, ev.Firearm.Status.Attachments);
             return false;
         }
 
@@ -148,33 +176,6 @@ namespace NWAPI.CustomItems.API.Features
         {
             if (!Check(ev.Firearm))
                 return true;
-
-            byte remainingClip = ev.Firearm.Status.Ammo;
-
-            if (remainingClip >= ClipSize)
-                return false;
-
-            var ammoType = ev.Firearm.AmmoType;
-
-            if (!(ev.Player.AmmoBag.TryGetValue(ammoType, out var value) && value > 0))
-                return false;
-
-            ev.Player.Connection.Send(new RequestMessage(ev.Firearm.ItemSerial, RequestType.Reload));
-            byte amountToReload = (byte)Math.Min(ClipSize - remainingClip, ev.Player.AmmoBag[ammoType]);
-
-            if (amountToReload <= 0)
-                return false;
-
-            ev.Player.ReferenceHub.playerEffectsController.GetEffect<CustomPlayerEffects.Invisible>().Intensity = 0;
-            ev.Player.AmmoBag[ammoType] -= amountToReload;
-            ev.Player.ReferenceHub.inventory.SendAmmoNextFrame = true;
-
-            FirearmStatusFlags flags = ev.Firearm.Status.Flags;
-            if ((flags & FirearmStatusFlags.MagazineInserted) == 0)
-            {
-                flags |= FirearmStatusFlags.MagazineInserted;
-            }
-            ev.Firearm.Status = new((byte)(ev.Firearm.Status.Ammo + amountToReload), flags, ev.Firearm.Status.Attachments);
 
             return OnReloading(ev);
         }

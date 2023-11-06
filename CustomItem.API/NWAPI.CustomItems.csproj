@@ -9,6 +9,7 @@
         <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
         <IsPublishable>False</IsPublishable>
         <Nullable>Enable</Nullable>
+        <DocumentationFile></DocumentationFile>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

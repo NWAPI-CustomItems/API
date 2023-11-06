@@ -13,8 +13,14 @@ using YamlDotNet.Serialization;
 
 namespace NWAPI.CustomItems.API.Spawn
 {
+    /// <summary>
+    /// Handles dynamic spawn locations.
+    /// </summary>
     public class DynamicSpawnPoint : SpawnPoint
     {
+        /// <summary>
+        /// Gets or sets the <see cref="SpawnLocationType"/> for this item.
+        /// </summary>
         public SpawnLocationType Location { get; set; }
 
         /// <inheritdoc/>

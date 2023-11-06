@@ -4,8 +4,15 @@ using PluginAPI.Events;
 
 namespace NWAPI.CustomItems.Handlers
 {
+    /// <summary>
+    /// Handler of map related events.
+    /// </summary>
     public class MapHandler
     {
+        /// <summary>
+        /// On MapGeneration spawn all customitems.
+        /// </summary>
+        /// <param name="_"></param>
         [PluginEvent]
         public void OnMapGenerated(MapGeneratedEvent _)
         {

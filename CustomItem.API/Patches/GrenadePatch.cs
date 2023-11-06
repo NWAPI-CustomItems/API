@@ -6,16 +6,20 @@ using NWAPI.CustomItems.API.Features;
 
 namespace NWAPI.CustomItems.Patches
 {
+    /// <summary>
+    /// Patch to make grenades explode on contact.
+    /// </summary>
     [HarmonyPatch(typeof(TimeGrenade), nameof(TimeGrenade.ServerActivate))]
     public class GrenadePatch
     {
-        public static void Prefix(TimeGrenade __instance)
+        private static void Prefix(TimeGrenade __instance)
         {
             if (CustomItem.TryGet(__instance.Info.Serial, out var customItem) && customItem is CustomGrenade customGrenade)
             {
                 if (customGrenade.ExplodeOnCollision)
                 {
                     __instance.gameObject.AddComponent<ExplodeOnCollision>();
+                    return;
                 }
 
                 __instance.TargetTime = NetworkTime.time + customGrenade.FuseTime;

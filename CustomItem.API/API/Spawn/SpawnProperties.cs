@@ -9,7 +9,9 @@
 
 namespace NWAPI.CustomItems.API.Spawn
 {
-
+    /// <summary>
+    /// Handles special properties of spawning an item.
+    /// </summary>
     public class SpawnProperties
     {
         /// <summary>

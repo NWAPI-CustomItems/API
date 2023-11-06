@@ -10,6 +10,9 @@ using UnityEngine;
 // -----------------------------------------------------------------------
 namespace NWAPI.CustomItems.API.Extensions
 {
+    /// <summary>
+    /// A set of tools for spawning items
+    /// </summary>
     public static class SpawnExtensions
     {
         /// <summary>

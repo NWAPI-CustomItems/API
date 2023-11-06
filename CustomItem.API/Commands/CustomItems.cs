@@ -5,8 +5,16 @@ using System.Text;
 
 namespace NWAPI.CustomItems.Commands
 {
+    /// <summary>
+    /// Main command for customitems.
+    /// </summary>
+    [CommandHandler(typeof(RemoteAdminCommandHandler))]
+    [CommandHandler(typeof(GameConsoleCommandHandler))]
     public sealed class CustomItems : ParentCommand
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CustomItems"/> command class.
+        /// </summary>
         public CustomItems() => LoadGeneratedCommands();
 
         /// <inheritdoc/>

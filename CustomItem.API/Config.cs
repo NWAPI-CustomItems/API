@@ -69,6 +69,7 @@ namespace NWAPI.CustomItems
         [Description("The duration in seconds for which the hint message will be displayed.")]
         public float Duration { get; set; }
 
+        /// <inheritdoc/>
         public override string ToString() => $"message \"{Message}\" with duration of {Duration}";
         
     }

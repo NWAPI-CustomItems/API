@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace NWAPI.CustomItems.API.Extensions
 {
+    /// <summary>
+    /// A set of tools for <see cref="Player"/>
+    /// </summary>
     public static class PlayerExtensions
     {
         /// <summary>

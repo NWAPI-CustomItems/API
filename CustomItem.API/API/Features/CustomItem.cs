@@ -294,7 +294,7 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         /// <param name="position">The position at which to spawn the item pickup.</param>
         /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
-        public virtual ItemPickup? Spawn(Vector3 position) => Spawn(position);
+        public virtual ItemPickup? Spawn(Vector3 position) => Spawn(position, null);
 
         /// <summary>
         /// Spawns an <see cref="CustomItem"/> pickup at the specified position with an optional item owner.
@@ -302,7 +302,7 @@ namespace NWAPI.CustomItems.API.Features
         /// <param name="position">The position at which to spawn the item pickup.</param>
         /// <param name="itemOwner">The optional owner of the item pickup.</param>
         /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
-        public virtual ItemPickup? Spawn(Vector3 position, Player? itemOwner = null) => Spawn(position, itemOwner);
+        public virtual ItemPickup? Spawn(Vector3 position, Player? itemOwner = null) => Spawn(position, itemOwner, default);
 
         /// <summary>
         /// Spawns an <see cref="CustomItem"/> pickup at the position of a specified player with an optional item owner.
@@ -310,7 +310,7 @@ namespace NWAPI.CustomItems.API.Features
         /// <param name="player">The player whose position will be used for spawning.</param>
         /// <param name="itemOwner">The optional owner of the item pickup.</param>
         /// <returns>The spawned <see cref="ItemPickup"/>, if successful; otherwise, null.</returns>
-        public virtual ItemPickup? Spawn(Player player, Player? itemOwner = null) => Spawn(player.Position, itemOwner);
+        public virtual ItemPickup? Spawn(Player player, Player? itemOwner = null) => Spawn(player.Position, itemOwner, default);
 
         /// <summary>
         /// Spawns an <see cref="CustomItem"/> pickup at the specified position with an optional owner and rotation.
@@ -323,7 +323,6 @@ namespace NWAPI.CustomItems.API.Features
         {
             if (ModelType == ItemType.None)
                 return null;
-
             var pickup = ItemPickup.Create(ModelType, position, rotation);
 
             pickup.Weight = Weight;
@@ -334,6 +333,12 @@ namespace NWAPI.CustomItems.API.Features
             if (owner != null)
                 pickup.OriginalObject.PreviousOwner = new(owner.ReferenceHub);
 
+            pickup.Spawn();
+
+            TrackedSerials.Add(pickup.Serial);
+            AllCustomItemsSerials.Add(pickup.Serial);
+
+            Log.Debug($"Spawning {Name} ({Id}) | {ModelType} in position {position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
             return pickup;
         }
 
@@ -359,8 +364,7 @@ namespace NWAPI.CustomItems.API.Features
 
             foreach (SpawnPoint spawnPoint in spawnPoints)
             {
-                Log.Debug($"Attempting to spawn {Name} at {spawnPoint.Position}.", Plugin.Instance.Config.DebugMode);
-
+                Log.Debug($"Attempting to spawn {Name} at {spawnPoint.Position}.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                 if (Plugin.Random.NextDouble() * 100 >= spawnPoint.Chance || (amount > 0 && spawned >= amount))
                     continue;
 
@@ -372,7 +376,7 @@ namespace NWAPI.CustomItems.API.Features
                     {
                         if (Map.Lockers is null)
                         {
-                            Log.Debug($"{nameof(Spawn)}: Locker list is null.", Plugin.Instance.Config.DebugMode);
+                            Log.Debug($"{nameof(Spawn)}: Locker list is null.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
 
@@ -380,51 +384,81 @@ namespace NWAPI.CustomItems.API.Features
 
                         if (locker is null)
                         {
-                            Log.Debug($"{nameof(Spawn)}: Selected locker is null.", Plugin.Instance.Config.DebugMode);
+                            Log.Debug($"{nameof(Spawn)}: Selected locker is null.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
 
                         if (locker.Loot is null)
                         {
-                            Log.Debug($"{nameof(Spawn)}: Invalid locker location. Attempting to find a new one..", Plugin.Instance.Config.DebugMode);
+                            Log.Debug($"{nameof(Spawn)}: Invalid locker location. Attempting to find a new one..", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
 
                         if (locker.Chambers is null)
                         {
-                            Log.Debug($"{nameof(Spawn)}: Locker chambers is null", Plugin.Instance.Config.DebugMode);
+                            Log.Debug($"{nameof(Spawn)}: Locker chambers is null", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
 
                         LockerChamber chamber = locker.Chambers[Plugin.Random.Next(Mathf.Max(0, locker.Chambers.Length - 1))];
 
                         if (chamber is null)
-                        {
-                            Log.Debug($"{nameof(Spawn)}: chamber is null", Plugin.Instance.Config.DebugMode);
+                        {   
+                            Log.Debug($"{nameof(Spawn)}: chamber is null", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
 
                         Vector3 position = chamber._spawnpoint.transform.position;
-                        Spawn(position, null);
-                        Log.Debug($"Spawned {Name} at {position}", Plugin.Instance.Config.DebugMode);
+                        var pickup = Spawn(position, null);
+
+                        if (pickup is null)
+                            continue;
+
+                        pickup.Spawn();
+                        TrackedSerials.Add(pickup.Serial);
+                        AllCustomItemsSerials.Add(pickup.Serial);
+
+                        Log.Debug($"Spawned {Name} at {position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
 
                         break;
                     }
                 }
                 else if (spawnPoint is RoleSpawnPoint roleSpawnPoint)
                 {
-                    Spawn(roleSpawnPoint.RoleType.GetRandomSpawnLocation(), null);
+                    ItemPickup? pickup = roleSpawnPoint.Offset.HasValue ? Spawn(roleSpawnPoint.Position + roleSpawnPoint.Offset.Value, null) : Spawn(roleSpawnPoint.Position, null);
+
+                    if (pickup is null)
+                        continue;
+
+                    pickup.Spawn();
+                    TrackedSerials.Add(pickup.Serial);
+                    AllCustomItemsSerials.Add(pickup.Serial);
                 }
                 else
                 {
-                    ItemPickup? pickup = Spawn(spawnPoint.Position, null);
-                    if (pickup?.OriginalObject is FirearmPickup firearmPickup && this is CustomWeapon customWeapon)
+                    try
                     {
-                        firearmPickup.Status = new FirearmStatus(customWeapon.ClipSize, firearmPickup.Status.Flags, firearmPickup.Status.Attachments);
-                        firearmPickup.NetworkStatus = firearmPickup.Status;
-                    }
+                        ItemPickup? pickup = spawnPoint.Offset.HasValue ? Spawn(spawnPoint.Position + spawnPoint.Offset.Value, null) : Spawn(spawnPoint.Position, null);
+                        if (pickup is null)
+                            continue;
 
-                    Log.Debug($"Spawned {Name} at {spawnPoint.Position}", Plugin.Instance.Config.DebugMode);
+                        if (pickup.OriginalObject is FirearmPickup firearmPickup && this is CustomWeapon customWeapon)
+                        {
+                            firearmPickup.Status = new FirearmStatus(customWeapon.ClipSize, firearmPickup.Status.Flags, firearmPickup.Status.Attachments);
+                            firearmPickup.NetworkStatus = firearmPickup.Status;
+                        }
+
+                        pickup.Spawn();
+                        TrackedSerials.Add(pickup.Serial);
+                        AllCustomItemsSerials.Add(pickup.Serial);
+
+                        Log.Debug($"Spawned {Name} at {spawnPoint.Position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+                    }
+                    catch (Exception e)
+                    {
+                        Log.Error($"Error on try spawning {Name}: {e}");
+                        break;
+                    }
                 }
                 return spawned;
             }
@@ -557,10 +591,15 @@ namespace NWAPI.CustomItems.API.Features
         /// <returns>A list of registered CustomItem instances.</returns>
         public static List<CustomItem> RegisterItems()
         {
+            if (!Plugin.Instance.Config.IsEnabled)
+            {
+                Log.Warning("NWAPI.CustomItems.API has been disabled due to configuration settings and will not register any item");
+                return new();
+            }
+
             var assembly = Assembly.GetCallingAssembly();
             var items = assembly.GetTypes()
-                .Where(t => (t.BaseType == typeof(CustomItem) || t.IsSubclassOf(typeof(CustomItem))) &&
-                            t.GetCustomAttribute(typeof(CustomItemAttribute)) is not null)
+                .Where(t => (t.BaseType == typeof(CustomItem) || t.IsSubclassOf(typeof(CustomItem))) && t.GetCustomAttribute(typeof(CustomItemAttribute)) is not null)
                 .Select(itemType => (CustomItem)Activator.CreateInstance(itemType))
                 .Where(customItem => customItem.TryRegister()).ToList();
 
@@ -605,11 +644,11 @@ namespace NWAPI.CustomItems.API.Features
         {
             if (!Plugin.Instance.Config.IsEnabled)
             {
-                Log.Debug($"Registration of {Name} ({Id}) skipped because the plugin is disabled.", Plugin.Instance.Config.DebugMode);
+                Log.Debug($"Registration of {Name} ({Id}) skipped because the plugin is disabled.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                 return false;
             }
 
-            Log.Debug($"Trying to register {Name} ({Id})", Plugin.Instance.Config.DebugMode);
+            Log.Debug($"Trying to register {Name} ({Id})", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
 
             if (!IsRegistered(this))
             {
@@ -619,12 +658,12 @@ namespace NWAPI.CustomItems.API.Features
                     return false;
                 }
 
-                Log.Debug($"Adding {Name} to the registered items hashset", Plugin.Instance.Config.DebugMode);
+                Log.Debug($"Adding {Name} to the registered items hashset", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                 Registered.Add(this);
 
                 Init();
 
-                Log.Debug($"{Name} ({Id}, {ModelType}) has been successfully registered.", Plugin.Instance.Config.DebugMode);
+                Log.Debug($"{Name} ({Id}, {ModelType}) has been successfully registered.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                 return true;
             }
 
@@ -637,11 +676,11 @@ namespace NWAPI.CustomItems.API.Features
 
             if (!Registered.Remove(this))
             {
-                Log.Warning($"Failed to unregister {Name} ({Id}, {ModelType}). It was not registered.");
+                Log.Warning($"Failed to unregister {Name} ({Id}, {ModelType}). It was not registered.", "NWAPI.CustomItem.API");
                 return false;
             }
 
-            Log.Debug($"{Name} ({Id}, {ModelType}) has been successfully unregistered.", Plugin.Instance.Config.DebugMode);
+            Log.Debug($"{Name} ({Id}, {ModelType}) has been successfully unregistered.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
             return true;
         }
 
@@ -746,7 +785,7 @@ namespace NWAPI.CustomItems.API.Features
         /// Subscribes to custom event handlers specific to this custom item. 
         /// This method is called after the manager is initialized to register the events.
         /// </summary>
-        protected virtual void SubscribeEvents()
+        public virtual void SubscribeEvents()
         {
             // To register event handlers, use PluginAPI.Events.EventManager.RegisterEvents(YourPluginInstance, YourCustomItemInstance);
         }
@@ -755,7 +794,7 @@ namespace NWAPI.CustomItems.API.Features
         /// Unsubscribes from custom event handlers associated with this custom item.
         /// This method is called when the manager is being destroyed to enable the unloading of special event.
         /// </summary>
-        protected virtual void UnsubscribeEvents()
+        public virtual void UnsubscribeEvents()
         {
             // To unregister event handlers, use PluginAPI.Events.EventManager.UnregisterEvents(YourPluginInstance, YourCustomItemInstance);
         }
@@ -764,7 +803,7 @@ namespace NWAPI.CustomItems.API.Features
         /// Clears the hashset of item serials and Pickup serials when the server is waiting for players.
         /// </summary>
         [PluginEvent]
-        protected virtual void OnWaitingForPlayers(WaitingForPlayersEvent _)
+        public virtual void OnWaitingForPlayers(WaitingForPlayersEvent _)
         {
             AllCustomItemsSerials.Clear();
             TrackedSerials.Clear();
@@ -830,10 +869,11 @@ namespace NWAPI.CustomItems.API.Features
 
                 // ev.Player.RemoveItem(item) its broken in NWAPI.
                 ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                Spawn(position, null);
 
                 OnOwnerDying(ev);
 
-                Spawn(position, ev.Player);
+                
             }
         }
 
@@ -855,7 +895,7 @@ namespace NWAPI.CustomItems.API.Features
 
                 Timing.CallDelayed(1.5f, () =>
                 {
-                    Spawn(ev.Player.Position, null);
+                    Spawn(ev.Player.Position + Vector3.up, null);
                 });
             }
         }
@@ -876,6 +916,8 @@ namespace NWAPI.CustomItems.API.Features
 
                 // ev.Player.RemoveItem(item) its broken in NWAPI.
                 ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+
+                Spawn(ev.Player.Position + Vector3.up, null);
             }
         }
 

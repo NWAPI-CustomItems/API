@@ -7,6 +7,9 @@
 // -----------------------------------------------------------------------
 namespace NWAPI.CustomItems.API.Spawn
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class StaticSpawnPoint : SpawnPoint
     {
         /// <inheritdoc/>
