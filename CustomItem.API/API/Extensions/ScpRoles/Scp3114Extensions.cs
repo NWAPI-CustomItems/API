@@ -1,12 +1,7 @@
 ﻿using MEC;
 using Mirror;
-using PlayerRoles.PlayableScps.Scp3114;
 using PlayerRoles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PlayerRoles.PlayableScps.Scp3114;
 
 namespace NWAPI.CustomItems.API.Extensions.ScpRoles
 {

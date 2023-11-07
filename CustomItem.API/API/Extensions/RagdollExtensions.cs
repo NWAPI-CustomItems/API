@@ -1,14 +1,10 @@
 ﻿using Mirror;
-using PlayerRoles.Ragdolls;
 using PlayerRoles;
-using PlayerStatsSystem;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using PlayerRoles.PlayableScps.Scp049.Zombies;
+using PlayerRoles.Ragdolls;
+using PlayerStatsSystem;
+using PluginAPI.Core;
+using UnityEngine;
 
 namespace NWAPI.CustomItems.API.Extensions
 {
@@ -128,5 +124,97 @@ namespace NWAPI.CustomItems.API.Extensions
         /// </summary>
         /// <param name="ragdoll">The BasicRagdoll to be destroyed.</param>
         public static void DestroyRagdoll(this BasicRagdoll ragdoll) => UnityEngine.Object.Destroy(ragdoll.gameObject);
+
+
+        /// <summary>
+        /// Creates a new ragdoll.
+        /// </summary>
+        /// <param name="networkInfo">The data associated with the ragdoll.</param>
+        /// <param name="ragdoll">Created ragdoll. Will be <see langword="null"/> if method retunred <see langword="false"/>.</param>
+        /// <returns><see langword="true"/> if ragdoll was successfully created. Otherwise, false.</returns>
+        public static bool TryCreate(RagdollData networkInfo, out BasicRagdoll ragdoll)
+        {
+            ragdoll = null!;
+
+            if (networkInfo.RoleType.GetRoleBase() is not IRagdollRole ragdollRole)
+                return false;
+
+            GameObject modelRagdoll = ragdollRole.Ragdoll.gameObject;
+
+            if (modelRagdoll == null || !UnityEngine.Object.Instantiate(modelRagdoll).TryGetComponent(out BasicRagdoll basicRagdoll))
+                return false;
+
+            basicRagdoll.NetworkInfo = networkInfo;
+            basicRagdoll.MoveRagdoll(networkInfo.StartPosition);
+            basicRagdoll.RotateRagdoll(networkInfo.StartRotation);
+
+            ragdoll = basicRagdoll;
+            return true;
+        }
+
+        /// <summary>
+        /// Creates and spawns a new ragdoll.
+        /// </summary>
+        /// <param name="networkInfo">The data associated with the ragdoll.</param>
+        /// <returns>The ragdoll.</returns>
+        public static BasicRagdoll? CreateAndSpawn(RagdollData networkInfo)
+        {
+            if (!TryCreate(networkInfo, out BasicRagdoll doll))
+                return null;
+
+            doll.SpawnRagdoll();
+
+            return doll;
+        }
+
+        /// <summary>
+        /// Creates a new ragdoll.
+        /// </summary>
+        /// <param name="roleType">The <see cref="RoleTypeId"/> of the ragdoll.</param>
+        /// <param name="name">The name of the ragdoll.</param>
+        /// <param name="damageHandler">The damage handler responsible for the ragdoll's death.</param>
+        /// <param name="ragdoll">Created ragdoll. Will be <see langword="null"/> if method retunred <see langword="false"/>.</param>
+        /// <param name="owner">The optional owner of the ragdoll.</param>
+        /// <returns>The ragdoll.</returns>
+        public static bool TryCreate(RoleTypeId roleType, string name, DamageHandlerBase damageHandler, out BasicRagdoll ragdoll, Player? owner = null)
+            => TryCreate(new(owner?.ReferenceHub ?? ReferenceHub.HostHub, damageHandler, roleType, default, default, name, NetworkTime.time), out ragdoll);
+
+        /// <summary>
+        /// Creates a new ragdoll.
+        /// </summary>
+        /// <param name="roleType">The <see cref="RoleTypeId"/> of the ragdoll.</param>
+        /// <param name="name">The name of the ragdoll.</param>
+        /// <param name="deathReason">The reason the ragdoll died.</param>
+        /// <param name="ragdoll">Created ragdoll. Will be <see langword="null"/> if method retunred <see langword="false"/>.</param>
+        /// <param name="owner">The optional owner of the ragdoll.</param>
+        /// <returns>The ragdoll.</returns>
+        public static bool TryCreate(RoleTypeId roleType, string name, string deathReason, out BasicRagdoll ragdoll, Player? owner = null)
+            => TryCreate(roleType: roleType, name: name, damageHandler: new CustomReasonDamageHandler(deathReason), out ragdoll, owner);
+
+        /// <summary>
+        /// Creates and spawns a new ragdoll.
+        /// </summary>
+        /// <param name="roleType">The <see cref="RoleTypeId"/> of the ragdoll.</param>
+        /// <param name="name">The name of the ragdoll.</param>
+        /// <param name="damageHandler">The damage handler responsible for the ragdoll's death.</param>
+        /// <param name="position">The position of the ragdoll.</param>
+        /// <param name="rotation">The rotation of the ragdoll.</param>
+        /// <param name="owner">The optional owner of the ragdoll.</param>
+        /// <returns>The ragdoll.</returns>
+        public static BasicRagdoll? CreateAndSpawn(RoleTypeId roleType, string name, DamageHandlerBase damageHandler, Vector3 position, Quaternion rotation, Player? owner = null)
+            => CreateAndSpawn(new(owner?.ReferenceHub ?? ReferenceHub.HostHub, damageHandler, roleType, position, rotation, name, NetworkTime.time));
+
+        /// <summary>
+        /// Creates and spawns a new ragdoll.
+        /// </summary>
+        /// <param name="roleType">The <see cref="RoleTypeId"/> of the ragdoll.</param>
+        /// <param name="name">The name of the ragdoll.</param>
+        /// <param name="deathReason">The reason the ragdoll died.</param>
+        /// <param name="position">The position of the ragdoll.</param>
+        /// <param name="rotation">The rotation of the ragdoll.</param>
+        /// <param name="owner">The optional owner of the ragdoll.</param>
+        /// <returns>The ragdoll.</returns>
+        public static BasicRagdoll? CreateAndSpawn(RoleTypeId roleType, string name, string deathReason, Vector3 position, Quaternion rotation, Player? owner = null)
+            => CreateAndSpawn(roleType, name, new CustomReasonDamageHandler(deathReason), position, rotation, owner);
     }
 }

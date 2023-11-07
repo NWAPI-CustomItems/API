@@ -14,7 +14,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
         public string[] Aliases { get; } = { "s" };
 
-        public string Description { get; } = "";
+        public string Description { get; } = "Spawn an item at the specified spawn location, player or coordinates";
 
         public string[] Usage { get; } = new string[]
         {

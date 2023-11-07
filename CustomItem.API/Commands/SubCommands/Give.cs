@@ -13,11 +13,11 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
         public string[] Aliases { get; } = { "g" };
 
-        public string Description { get; } = "";
+        public string Description { get; } = "Gives a custom item";
 
         public string[] Usage { get; } = new string[]
         {
-            "Custo item id/custom item name",
+            "custom item id/custom item name",
             "PlayerId/All/*"
         };
 
@@ -63,6 +63,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
                     customItem?.Give(player);
                     response = $" Giving {customItem?.Name} to {player.LogName}";
+                    return true;
                 }
 
                 response = " Error getting the player. Please follow the command syntax.";

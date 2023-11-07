@@ -23,38 +23,22 @@ namespace NWAPI.CustomItems.API.Extensions
         /// </summary>
         /// <param name="type">The <see cref="ItemType"/> to check.</param>
         /// <returns><see langword="true"/> if the <see cref="ItemType"/> is a keycard; otherwise, <see langword="false"/>.</returns>
-        public static bool IsKeycard(this ItemType type) => type switch
+        public static bool IsKeycard(this ItemType type)
         {
-            ItemType.KeycardChaosInsurgency => true,
-            ItemType.KeycardContainmentEngineer => true,
-            ItemType.KeycardFacilityManager => true,
-            ItemType.KeycardGuard => true,
-            ItemType.KeycardJanitor => true,
-            ItemType.KeycardMTFCaptain => true,
-            ItemType.KeycardMTFPrivate => true,
-            ItemType.KeycardMTFOperative => true,
-            ItemType.KeycardO5 => true,
-            ItemType.KeycardResearchCoordinator => true,
-            ItemType.KeycardScientist => true,
-            ItemType.KeycardZoneManager => true,
-            _ => false,
-        };
+            var itemBase = type.GetItemBase();
+            return itemBase?.Category == ItemCategory.Keycard;
+        }
 
         /// <summary>
         /// Checks if the specified <see cref="ItemType"/> is ammo.
         /// </summary>
         /// <param name="type">The <see cref="ItemType"/> to check.</param>
         /// <returns><see langword="true"/> if the <see cref="ItemType"/> is ammo; otherwise, <see langword="false"/>.</returns>
-        public static bool IsAmmo(this ItemType type) => type switch
+        public static bool IsAmmo(this ItemType type) 
         {
-            ItemType.Ammo12gauge => true,
-            ItemType.Ammo44cal => true,
-            ItemType.Ammo556x45 => true,
-            ItemType.Ammo762x39 => true,
-            ItemType.Ammo9x19 => true,
-            _ => false,
-
-        };
+            var itemBase = type.GetItemBase();
+            return itemBase?.Category == ItemCategory.Ammo;
+        }
 
         /// <summary>
         /// Checks if the specified <see cref="ItemType"/> is a firearm.
@@ -116,6 +100,20 @@ namespace NWAPI.CustomItems.API.Extensions
             ItemType.SCP2176 => true,
             _ => false,
         };
+
+        /// <summary>
+        /// Checks if the item type is a medical item.
+        /// </summary>
+        /// <param name="type">The item type to check.</param>
+        /// <returns>True if the item is of medical category, false otherwise.</returns>
+        public static bool IsMedical(this ItemType type)
+        {
+            var itemBase = type.GetItemBase();
+
+            return itemBase?.Category == ItemCategory.Medical;
+        }
+
+
 
         /// <summary>
         /// Creates a throwable item of the specified ItemType and optionally assigns it to a player's inventory.
@@ -280,6 +278,21 @@ namespace NWAPI.CustomItems.API.Extensions
                 return;
 
             firearm.Status = new(ammo1, firearm.Status.Flags, firearm.Status.Attachments);
+        }
+
+        /// <summary>
+        /// Retrieves the base item associated with a specific item type.
+        /// </summary>
+        /// <param name="type">The item type for which the base item is requested.</param>
+        /// <returns>
+        /// The base item associated with the specified item type if available; otherwise, returns null.
+        /// </returns>
+        public static ItemBase? GetItemBase(this ItemType type)
+        {
+            if (!InventoryItemLoader.AvailableItems.TryGetValue(type, out ItemBase @base))
+                return null;
+
+            return @base;
         }
     }
 }

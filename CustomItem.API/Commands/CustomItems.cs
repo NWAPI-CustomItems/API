@@ -26,19 +26,22 @@ namespace NWAPI.CustomItems.Commands
         /// <inheritdoc/>
         public override string Description => "Main command for customitems";
 
-        private readonly Dictionary<string, string[]> CommandInfo = new();
+        private readonly Dictionary<string, (string, string[])> CommandInfo = new();
         private string _cachedInfo = string.Empty;
         /// <inheritdoc/>
         public override void LoadGeneratedCommands()
         {
             RegisterCommand(SubCommands.Give.Instance);
-            CommandInfo.Add(SubCommands.Give.Instance.Command, SubCommands.Give.Instance.Aliases);
+            CommandInfo.Add(SubCommands.Give.Instance.Command, (SubCommands.Give.Instance.Description, SubCommands.Give.Instance.Aliases));
 
             RegisterCommand(SubCommands.Info.Instance);
-            CommandInfo.Add(SubCommands.Info.Instance.Command, SubCommands.Info.Instance.Aliases);
+            CommandInfo.Add(SubCommands.Info.Instance.Command, (SubCommands.Info.Instance.Description, SubCommands.Info.Instance.Aliases));
 
             RegisterCommand(SubCommands.Spawn.Instance);
-            CommandInfo.Add(SubCommands.Spawn.Instance.Command, SubCommands.Spawn.Instance.Aliases);
+            CommandInfo.Add(SubCommands.Spawn.Instance.Command, (SubCommands.Spawn.Instance.Description, SubCommands.Spawn.Instance.Aliases));
+
+            RegisterCommand(SubCommands.List.Instance);
+            CommandInfo.Add(SubCommands.List.Instance.Command, (SubCommands.List.Instance.Description, SubCommands.List.Instance.Aliases));
         }
 
         /// <inheritdoc/>
@@ -54,14 +57,14 @@ namespace NWAPI.CustomItems.Commands
             {
                 var builder = new StringBuilder();
                 builder.AppendLine("Invalid subcommand. Available subcommands are:");
-                builder.AppendLine("| Command | Aliases |");
+                builder.AppendLine("| Command | Aliases | Description");
 
                 foreach (var command in CommandInfo)
                 {
-                    var aliases = command.Value != null && command.Value.Length > 0
-                        ? string.Join(", ", command.Value)
+                    var aliases = command.Value.Item2 != null && command.Value.Item2.Length > 0
+                        ? string.Join(", ", command.Value.Item2)
                         : "NA";
-                    builder.AppendLine($"- {command.Key} | {aliases}");
+                    builder.AppendLine($"- {command.Key} | {aliases} | {command.Value.Item1}");
                 }
 
                 _cachedInfo = builder.ToString();

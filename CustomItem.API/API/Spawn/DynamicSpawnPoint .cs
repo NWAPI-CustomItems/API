@@ -28,6 +28,14 @@ namespace NWAPI.CustomItems.API.Spawn
 
         /// <inheritdoc/>
         [YamlIgnore]
+        public override string Name
+        {
+            get => Location.ToString();
+            set => throw new InvalidOperationException("The name of a dynamic spawn location cannot be changed.");
+        }
+
+        /// <inheritdoc/>
+        [YamlIgnore]
         public override Vector3 Position
         {
             get => Location.GetPosition();

@@ -1,5 +1,6 @@
 ﻿using CommandSystem;
 using NWAPI.CustomItems.API.Features;
+using NWAPI.CustomItems.API.Spawn;
 using System;
 
 namespace NWAPI.CustomItems.Commands.SubCommands
@@ -10,7 +11,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
         public string[] Aliases { get; } = { "i" };
 
-        public string Description { get; } = "";
+        public string Description { get; } = "Gets all information about the specified custom item";
 
         public string[] Usage { get; } = new string[]
         {
@@ -40,13 +41,35 @@ namespace NWAPI.CustomItems.Commands.SubCommands
             }
 
             response =
-                $"Name: {customItem?.Name}\n" +
+                $"\nName: {customItem?.Name}\n" +
                 $"Description: {customItem?.Description}\n" +
                 $"Id: {customItem?.Id}\n" +
                 $"ModelType: {customItem?.ModelType}\n" +
-                $"SpawnLocation:\n";
+                $"SpawnLocations: {GetSpawnLocations(customItem)}\n";
 
             return true;
         }
+
+        private string GetSpawnLocations(CustomItem? item)
+        {
+            if (item is null || item?.SpawnProperties is null)
+                return string.Empty;
+
+            string response = "\n";
+            response += "Spawn Locations (" + (item.SpawnProperties.DynamicSpawnPoints.Count + item.SpawnProperties.StaticSpawnPoints.Count) + ")\n";
+
+            foreach (DynamicSpawnPoint spawnPoint in item.SpawnProperties.DynamicSpawnPoints)
+            {
+                response += spawnPoint.Name + ' ' + spawnPoint.Position + " Chance: " + spawnPoint.Chance + "%\n";
+            }
+
+            foreach (StaticSpawnPoint spawnPoint in item.SpawnProperties.StaticSpawnPoints)
+            {
+                response += spawnPoint.Name + ' ' + spawnPoint.Position + " Chance: " + spawnPoint.Chance + "%\n";
+            }
+
+            return response;
+        }
+
     }
 }

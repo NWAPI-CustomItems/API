@@ -43,7 +43,7 @@ namespace NWAPI.CustomItems
         /// <summary>
         /// Initializes a new instance of the <see cref="HintMessage"/> class.
         /// </summary>
-        public HintMessage() : this(string.Empty) 
+        public HintMessage() : this(string.Empty)
         { }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace NWAPI.CustomItems
 
         /// <inheritdoc/>
         public override string ToString() => $"message \"{Message}\" with duration of {Duration}";
-        
+
     }
 
 }

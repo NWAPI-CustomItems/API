@@ -1,6 +1,7 @@
 ﻿using NWAPI.CustomItems.API.Extensions;
 using PlayerRoles;
 using System;
+using System.Data;
 using UnityEngine;
 using YamlDotNet.Serialization;
 
@@ -24,6 +25,14 @@ namespace NWAPI.CustomItems.API.Spawn
 
         /// <inheritdoc/>
         public override float Chance { get; set; }
+
+        /// <inheritdoc/>
+        [YamlIgnore]
+        public override string Name
+        {
+            get => RoleType.ToString();
+            set => throw new InvalidOperationException("The name of this type of SpawnPoint cannot be changed.");
+        }
 
         /// <inheritdoc/>
         [YamlIgnore]

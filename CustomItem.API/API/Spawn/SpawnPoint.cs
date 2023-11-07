@@ -13,6 +13,12 @@ namespace NWAPI.CustomItems.API.Spawn
     /// </summary>
     public abstract class SpawnPoint
     {
+
+        /// <summary>
+        /// Gets or sets this spawn point name.
+        /// </summary>
+        public abstract string Name { get; set; }
+
         /// <summary>
         /// Gets or sets the probability that this spawn point will be selected.
         /// </summary>

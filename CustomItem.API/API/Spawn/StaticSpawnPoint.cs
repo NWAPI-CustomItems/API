@@ -13,6 +13,9 @@ namespace NWAPI.CustomItems.API.Spawn
     public class StaticSpawnPoint : SpawnPoint
     {
         /// <inheritdoc/>
+        public override string Name { get; set; } = string.Empty;
+
+        /// <inheritdoc/>
         public override float Chance { get; set; }
 
         /// <inheritdoc/>

@@ -5,7 +5,6 @@ using InventorySystem.Items.Pickups;
 using MapGeneration.Distributors;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
-using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Features.Attributes;
 using NWAPI.CustomItems.API.Spawn;
 using NWAPI.CustomItems.API.Struct;
@@ -403,7 +402,7 @@ namespace NWAPI.CustomItems.API.Features
                         LockerChamber chamber = locker.Chambers[Plugin.Random.Next(Mathf.Max(0, locker.Chambers.Length - 1))];
 
                         if (chamber is null)
-                        {   
+                        {
                             Log.Debug($"{nameof(Spawn)}: chamber is null", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
@@ -659,6 +658,7 @@ namespace NWAPI.CustomItems.API.Features
                 }
 
                 Log.Debug($"Adding {Name} to the registered items hashset", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+
                 Registered.Add(this);
 
                 Init();
@@ -847,8 +847,15 @@ namespace NWAPI.CustomItems.API.Features
 
                 TrackedSerials.Remove(item.ItemSerial);
 
-                // ev.Player.RemoveItem(item) its broken in NWAPI.
-                ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                try
+                {
+                    // ev.Player.RemoveItem(item) its broken in NWAPI.
+                    ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                }
+                catch (Exception)
+                {
+                    // Ignored, this will happen when the player disconnects.
+                }
 
                 Spawn(ev.Player, ev.Player);
             }
@@ -867,13 +874,19 @@ namespace NWAPI.CustomItems.API.Features
 
                 TrackedSerials.Remove(item.ItemSerial);
 
-                // ev.Player.RemoveItem(item) its broken in NWAPI.
-                ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                try
+                {
+                    // ev.Player.RemoveItem(item) its broken in NWAPI.
+                    ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                }
+                catch (Exception)
+                {
+                    // Ignored, this will happen when the player disconnects.
+                }
+
                 Spawn(position, null);
 
                 OnOwnerDying(ev);
-
-                
             }
         }
 
@@ -888,8 +901,15 @@ namespace NWAPI.CustomItems.API.Features
 
                 TrackedSerials.Remove(item.ItemSerial);
 
-                // ev.Player.RemoveItem(item) its broken in NWAPI.
-                ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                try
+                {
+                    // ev.Player.RemoveItem(item) its broken in NWAPI.
+                    ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                }
+                catch (Exception)
+                {
+                    // Ignored, this will happen when the player disconnects.
+                }
 
                 OnOwnerEscape(ev);
 
@@ -914,8 +934,16 @@ namespace NWAPI.CustomItems.API.Features
 
                 TrackedSerials.Remove(item.ItemSerial);
 
-                // ev.Player.RemoveItem(item) its broken in NWAPI.
-                ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                try
+                {
+                    // ev.Player.RemoveItem(item) its broken in NWAPI.
+                    ev.Player.ReferenceHub.inventory.ServerRemoveItem(item.ItemSerial, null);
+                }
+                catch (Exception)
+                {
+                    // Ignored, this will happen when the player disconnects.
+                }
+               
 
                 Spawn(ev.Player.Position + Vector3.up, null);
             }
