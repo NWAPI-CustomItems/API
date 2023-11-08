@@ -154,7 +154,7 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         protected virtual void OnHurting(PlayerDamageEvent ev)
         {
-            if (!Check(ev.Player.CurrentItem))
+            if (ev.Player is null || ev.Target is null || !Check(ev.Player.CurrentItem))
                 return;
 
             if (ev.DamageHandler is FirearmDamageHandler dmg)

@@ -30,7 +30,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
             foreach (var customItem in CustomItem.Registered.OrderBy(item => item.Id))
             {
-                response += $"[ {customItem.Id} | {customItem.Name} ({customItem.ModelType}) ]\n";
+                response += $"[ {customItem.Id, -2} | {customItem.Name} ({customItem.ModelType}) ]\n";
             }
 
             return true;
