@@ -61,19 +61,20 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
         private Vector3 GetSpawnPosition(ArraySegment<string> arguments)
         {
-            if (Enum.TryParse(arguments.At(1), out SpawnLocationType spawnLocationType))
+            if (int.TryParse(arguments.At(1), out int playerId))
             {
-                return spawnLocationType.GetPosition();
-            }
-
-            if (int.TryParse(arguments.At(1), out int playerId) && Player.TryGet(playerId, out Player player))
-            {
-                if (!player.IsAlive)
+                Player? player = Player.Get(playerId);
+                if (player is null || !player.IsAlive)
                 {
                     return Vector3.zero;
                 }
 
-                return player.Position;
+                return player.Position + Vector3.up;
+            }
+
+            if (Enum.TryParse(arguments.At(1), out SpawnLocationType spawnLocationType))
+            {
+                return spawnLocationType.GetPosition();
             }
 
             if (arguments.Count > 3 && Vector3Extensions.TryParse($"{arguments.At(1)} {arguments.At(2)} {arguments.At(3)}", out Vector3 position))

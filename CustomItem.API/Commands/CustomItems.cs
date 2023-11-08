@@ -57,14 +57,14 @@ namespace NWAPI.CustomItems.Commands
             {
                 var builder = new StringBuilder();
                 builder.AppendLine("Invalid subcommand. Available subcommands are:");
-                builder.AppendLine("| Command | Aliases | Description");
+                builder.AppendLine($"| Command {-5} | Aliases {-5} | Description {-5} |");
 
                 foreach (var command in CommandInfo)
                 {
                     var aliases = command.Value.Item2 != null && command.Value.Item2.Length > 0
                         ? string.Join(", ", command.Value.Item2)
                         : "NA";
-                    builder.AppendLine($"- {command.Key} | {aliases} | {command.Value.Item1}");
+                    builder.AppendLine($"- {command.Key,-5} | {aliases,-5} | {command.Value.Item1,-5}");
                 }
 
                 _cachedInfo = builder.ToString();

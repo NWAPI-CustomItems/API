@@ -1,10 +1,10 @@
-﻿using InventorySystem;
-using InventorySystem.Items.Armor;
+﻿using InventorySystem.Items.Armor;
 using MEC;
 using NWAPI.CustomItems.API.Extensions;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
+using System.Linq;
 
 namespace NWAPI.CustomItems.API.Features
 {
@@ -15,7 +15,6 @@ namespace NWAPI.CustomItems.API.Features
     {
         /// <summary>
         /// Gets or sets the multiplier for stamina usage when wearing this armor.
-        /// Valid range is between 1.0 and 2.0.
         /// </summary>
         public virtual float StaminaUseMultiplier { get; set; } = 2.0f;
 
@@ -84,21 +83,33 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         /// <summary>
-        /// An internal event handler for when a player searches for a pickup item.
+        /// Called when a player picks up armor. 
+        /// Applies changes to the armor's statistics for the picked-up items if they are valid.
         /// </summary>
-        /// <param name="ev">The <see cref="PlayerSearchedPickupEvent"/> associated with the search action.</param>
+        /// <param name="ev">The event containing information about the player and the picked-up armor item.</param>
+        public virtual void OnArmorPickedup(PlayerPickupArmorEvent ev)
+        {
+            ShowPickupMessage(ev.Player);
+
+            Timing.CallDelayed(0.4f, () =>
+            {
+                foreach (var item in ev.Player.Items.ToList())
+                {
+                    if (Check(item) && item is BodyArmor armor)
+                    {
+                        SetArmorStats(armor);
+                    }
+                }
+            });
+        }
+
         [PluginEvent]
-        private void OnInternalSearched(PlayerSearchedPickupEvent ev)
+        private void OnInternalPickupArmor(PlayerPickupArmorEvent ev)
         {
             if (!Check(ev.Item))
                 return;
 
-            Timing.CallDelayed(0.4f, () =>
-            {
-                TrackedSerials.Remove(ev.Item.Info.Serial);
-                ev.Player.ReferenceHub.inventory.ServerRemoveItem(ev.Item.Info.Serial, null);
-                Give(ev.Player);
-            });
+            OnArmorPickedup(ev);
         }
     }
 }

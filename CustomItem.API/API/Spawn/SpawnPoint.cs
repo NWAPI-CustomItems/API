@@ -34,6 +34,15 @@ namespace NWAPI.CustomItems.API.Spawn
         /// </summary>
         public abstract Vector3? Offset { get; set; }
 
+        /// <summary>
+        /// Deconstructs the class into usable variables.
+        /// </summary>
+        /// <param name="chance"><inheritdoc cref="Chance"/></param>
+        /// <param name="position"><inheritdoc cref="Position"/></param>
+        public void Deconstruct(out float chance, out Vector3 position)
+        {
+            chance = Chance;
+            position = Position;
+        }
     }
-
 }

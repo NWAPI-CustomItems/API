@@ -34,7 +34,7 @@ namespace NWAPI.CustomItems.API.Extensions
         /// </summary>
         /// <param name="type">The <see cref="ItemType"/> to check.</param>
         /// <returns><see langword="true"/> if the <see cref="ItemType"/> is ammo; otherwise, <see langword="false"/>.</returns>
-        public static bool IsAmmo(this ItemType type) 
+        public static bool IsAmmo(this ItemType type)
         {
             var itemBase = type.GetItemBase();
             return itemBase?.Category == ItemCategory.Ammo;

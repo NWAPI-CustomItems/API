@@ -5,6 +5,7 @@ using InventorySystem.Items.Pickups;
 using MapGeneration.Distributors;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
+using NWAPI.CustomItems.API.Extensions;
 using NWAPI.CustomItems.API.Features.Attributes;
 using NWAPI.CustomItems.API.Spawn;
 using NWAPI.CustomItems.API.Struct;
@@ -332,12 +333,12 @@ namespace NWAPI.CustomItems.API.Features
             if (owner != null)
                 pickup.OriginalObject.PreviousOwner = new(owner.ReferenceHub);
 
-            pickup.Spawn();
-
             TrackedSerials.Add(pickup.Serial);
             AllCustomItemsSerials.Add(pickup.Serial);
 
-            Log.Debug($"Spawning {Name} ({Id}) | {ModelType} in position {position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+            pickup.Spawn();
+
+            Log.Debug($"Spawning {Name} ({Id}) [{pickup.Serial}] | {ModelType} in position {position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
             return pickup;
         }
 
@@ -724,7 +725,7 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         /// <summary>
-        /// Event handler called when the owner of the custom item is being handcuffed.
+        /// Called when the owner of the custom item is being handcuffed.
         /// </summary>
         /// <param name="ev">The event data for the handcuffing event.</param>
         public virtual void OnOwnerHanducuffing(PlayerHandcuffEvent ev)
@@ -733,7 +734,7 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         /// <summary>
-        /// Event handler called when the owner of the custom item drops the item.
+        /// Called when the owner of the custom item drops the item.
         /// </summary>
         /// <param name="ev">The event data for the item dropping event.</param>
         public virtual bool OnDropped(PlayerDroppedItemEvent ev)
@@ -742,7 +743,7 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         /// <summary>
-        /// Event handler called when the owner of the custom item picks up an item from a search.
+        /// Called when the owner of the custom item picks up an item from a search.
         /// </summary>
         /// <param name="ev">The event data for the item pickup event.</param>
         public virtual void OnPickedup(PlayerSearchedPickupEvent ev)
@@ -751,7 +752,7 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         /// <summary>
-        /// Event handler called when the owner of the custom item changes their held item.
+        /// Called when the owner of the custom item changes their held item.
         /// </summary>
         /// <param name="ev">The event data for the item change event.</param>
         public virtual void OnChangeItem(PlayerChangeItemEvent ev)
@@ -782,8 +783,7 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         /// <summary>
-        /// Subscribes to custom event handlers specific to this custom item. 
-        /// This method is called after the manager is initialized to register the events.
+        /// Called when the item is registered.
         /// </summary>
         public virtual void SubscribeEvents()
         {
@@ -791,8 +791,7 @@ namespace NWAPI.CustomItems.API.Features
         }
 
         /// <summary>
-        /// Unsubscribes from custom event handlers associated with this custom item.
-        /// This method is called when the manager is being destroyed to enable the unloading of special event.
+        /// Called when the item is unregistered.
         /// </summary>
         public virtual void UnsubscribeEvents()
         {
@@ -943,7 +942,7 @@ namespace NWAPI.CustomItems.API.Features
                 {
                     // Ignored, this will happen when the player disconnects.
                 }
-               
+
 
                 Spawn(ev.Player.Position + Vector3.up, null);
             }
@@ -959,6 +958,10 @@ namespace NWAPI.CustomItems.API.Features
             {
                 ev.Item.NetworkInfo = new(ev.Item.NetworkInfo.ItemId, Weight, ev.Item.NetworkInfo.Serial);
             }
+            if(Scale != Vector3.one)
+            {
+                ev.Item.ChangeScale(Scale);
+            }
 
             return OnDropped(ev);
         }
@@ -966,9 +969,8 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         private void OnInternalPickedup(PlayerSearchedPickupEvent ev)
         {
-            if (!Check(ev.Item) || ev.Player.IsInventoryFull)
+            if (!Check(ev.Item))
                 return;
-
 
             OnPickedup(ev);
         }
