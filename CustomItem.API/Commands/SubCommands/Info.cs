@@ -45,7 +45,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
                 $"Description: {customItem?.Description}\n" +
                 $"Id: {customItem?.Id}\n" +
                 $"ModelType: {customItem?.ModelType}\n" +
-                $"SpawnLocations: {GetSpawnLocations(customItem)}\n";
+                $"SpawnLocations: \n{GetSpawnLocations(customItem)}";
 
             return true;
         }
@@ -55,7 +55,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
             if (item is null || item?.SpawnProperties is null)
                 return string.Empty;
 
-            string response = "\n";
+            string response = string.Empty;
             response += "Spawn Locations (" + (item.SpawnProperties.DynamicSpawnPoints.Count + item.SpawnProperties.StaticSpawnPoints.Count) + ")\n";
 
             foreach (DynamicSpawnPoint spawnPoint in item.SpawnProperties.DynamicSpawnPoints)

@@ -3,7 +3,7 @@
 namespace NWAPI.CustomItems.API.Extensions
 {
     /// <summary>
-    /// A set of tools for <see cref="Vector3"/>
+    /// A collection of extension methods for <see cref="Vector3"/>
     /// </summary>
     public static class Vector3Extensions
     {

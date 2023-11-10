@@ -14,6 +14,7 @@ using PluginAPI.Core.Attributes;
 using PluginAPI.Core.Items;
 using PluginAPI.Events;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -597,11 +598,45 @@ namespace NWAPI.CustomItems.API.Features
                 return new();
             }
 
+            List<CustomItem> items = new();
             var assembly = Assembly.GetCallingAssembly();
-            var items = assembly.GetTypes()
+
+            object? customItemConfig = assembly.LoadCustomItemConfig();
+
+            if (customItemConfig is null)
+            {
+                Log.Error($"{nameof(RegisterItems)}: error in trying to register assembly custom items, custom item config is null");
+                return new();
+            }
+
+            foreach (var item in customItemConfig.GetType().GetProperties())
+            {
+                if (item.GetValue(customItemConfig) is IEnumerable enumerable)
+                {
+                    List<CustomItem> _toRegister = NorthwoodLib.Pools.ListPool<CustomItem>.Shared.Rent();
+
+                    foreach (var value in enumerable)
+                    {
+                        if (value is CustomItem ci && value.GetType().GetCustomAttribute<CustomItemAttribute>() is not null)
+                            _toRegister.Add(ci);
+
+                        foreach (var customitem in _toRegister)
+                        {
+                            if (!customitem.TryRegister())
+                                continue;
+
+                            items.Add(customitem);
+                        }
+                    }
+
+                    NorthwoodLib.Pools.ListPool<CustomItem>.Shared.Return(_toRegister);
+                }
+            }
+
+            /*var items = assembly.GetTypes()
                 .Where(t => (t.BaseType == typeof(CustomItem) || t.IsSubclassOf(typeof(CustomItem))) && t.GetCustomAttribute(typeof(CustomItemAttribute)) is not null)
                 .Select(itemType => (CustomItem)Activator.CreateInstance(itemType))
-                .Where(customItem => customItem.TryRegister()).ToList();
+                .Where(customItem => customItem.TryRegister()).ToList();*/
 
             return items;
         }
@@ -931,7 +966,7 @@ namespace NWAPI.CustomItems.API.Features
 
                 OnOwnerHanducuffing(ev);
 
-                TrackedSerials.Remove(item.ItemSerial);
+                /*TrackedSerials.Remove(item.ItemSerial);
 
                 try
                 {
@@ -941,10 +976,9 @@ namespace NWAPI.CustomItems.API.Features
                 catch (Exception)
                 {
                     // Ignored, this will happen when the player disconnects.
-                }
+                }*/
 
-
-                Spawn(ev.Player.Position + Vector3.up, null);
+                //Spawn(ev.Player.Position + Vector3.up, null);
             }
         }
 
@@ -958,7 +992,7 @@ namespace NWAPI.CustomItems.API.Features
             {
                 ev.Item.NetworkInfo = new(ev.Item.NetworkInfo.ItemId, Weight, ev.Item.NetworkInfo.Serial);
             }
-            if(Scale != Vector3.one)
+            if (Scale != Vector3.one)
             {
                 ev.Item.ChangeScale(Scale);
             }

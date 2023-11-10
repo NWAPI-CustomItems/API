@@ -11,7 +11,7 @@ using UnityEngine;
 namespace NWAPI.CustomItems.API.Extensions
 {
     /// <summary>
-    /// A set of tools for spawning items
+    /// A collection of extension methods for spawning items
     /// </summary>
     public static class SpawnExtensions
     {

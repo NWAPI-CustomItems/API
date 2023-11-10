@@ -9,7 +9,7 @@ using UnityEngine;
 namespace NWAPI.CustomItems.API.Extensions
 {
     /// <summary>
-    /// Provides extension methods for creating and managing ragdolls in the game.
+    ///  A collection of extension methods for creating and managing ragdolls ingame.
     /// </summary>
     public static class RagdollExtensions
     {

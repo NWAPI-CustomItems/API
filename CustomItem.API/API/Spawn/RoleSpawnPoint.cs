@@ -1,7 +1,6 @@
 ﻿using NWAPI.CustomItems.API.Extensions;
 using PlayerRoles;
 using System;
-using System.Data;
 using UnityEngine;
 using YamlDotNet.Serialization;
 

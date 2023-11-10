@@ -4,17 +4,19 @@ using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Pickups;
 using InventorySystem.Items.ThrowableProjectiles;
 using Mirror;
+using NWAPI.CustomItems.API.Features;
 using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
+using PluginAPI.Core.Items;
 using PluginAPI.Events;
+using System.Linq;
 using UnityEngine;
 using static InventorySystem.Items.ThrowableProjectiles.ThrowableItem;
 
 namespace NWAPI.CustomItems.API.Extensions
 {
     /// <summary>
-    /// Provides a collection of extension methods for working with item-related objects.
-    /// These methods allow for additional functionality and operations on item-related types.
+    /// A collection of extension methods for items in the game.
     /// </summary>
     public static class ItemExtensions
     {
@@ -294,5 +296,76 @@ namespace NWAPI.CustomItems.API.Extensions
 
             return @base;
         }
+
+        /// <summary>
+        /// Checks if the provided <see cref="ItemPickupBase"/> is a registered custom item.
+        /// </summary>
+        /// <param name="pickupBase">The <see cref="ItemPickupBase"/> to check.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this ItemPickupBase pickupBase) => CustomItem.Registered.Any(i => i.Check(pickupBase.NetworkInfo.Serial));
+
+        /// <summary>
+        /// Checks if the provided <see cref="ItemBase"/> is a registered custom item.
+        /// </summary>
+        /// <param name="item">The <see cref="ItemBase"/> to check.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this ItemBase item) => CustomItem.Registered.Any(i => i.Check(item.ItemSerial));
+
+        /// <summary>
+        /// Checks if the provided <see cref="Item"/> is a registered custom item.
+        /// </summary>
+        /// <param name="item">The <see cref="Item"/> to check.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this Item item) => IsCustomItem(item.OriginalObject);
+
+        /// <summary>
+        /// Checks if the provided <see cref="ItemPickup"/> is a registered custom item.
+        /// </summary>
+        /// <param name="pickup">The <see cref="ItemPickup"/> to check.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this ItemPickup pickup) => IsCustomItem(pickup.OriginalObject);
+
+        /// <summary>
+        /// Checks if the provided <see cref="ItemPickupBase"/> is a registered custom item and returns the corresponding <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="pickupBase">The <see cref="ItemPickupBase"/> to check.</param>
+        /// <param name="customItem">The registered custom item if found; otherwise, null.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this ItemPickupBase pickupBase, out CustomItem? customItem)
+        {
+            customItem = CustomItem.Registered.FirstOrDefault(ci => ci.Check(pickupBase));
+
+            return customItem != null;
+        }
+
+        /// <summary>
+        /// Checks if the provided <see cref="ItemBase"/> is a registered custom item and returns the corresponding <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="itemBase">The <see cref="ItemBase"/> to check.</param>
+        /// <param name="customItem">The registered custom item if found; otherwise, null.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this ItemBase itemBase, out CustomItem? customItem)
+        {
+            customItem = CustomItem.Registered.FirstOrDefault(ci => ci.Check(itemBase));
+
+            return customItem != null;
+        }
+
+        /// <summary>
+        /// Checks if the provided <see cref="ItemPickup"/> is a registered custom item and returns the corresponding <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="pickup">The <see cref="ItemPickup"/> to check.</param>
+        /// <param name="customItem">The registered custom item if found; otherwise, null.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this ItemPickup pickup, out CustomItem? customItem) => IsCustomItem(pickup.OriginalObject, out customItem);
+
+        /// <summary>
+        /// Checks if the provided <see cref="Item"/> is a registered custom item and returns the corresponding <see cref="CustomItem"/>.
+        /// </summary>
+        /// <param name="item">The <see cref="Item"/> to check.</param>
+        /// <param name="customItem">The registered custom item if found; otherwise, null.</param>
+        /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
+        public static bool IsCustomItem(this Item item, out CustomItem? customItem) => IsCustomItem(item.OriginalObject, out customItem);
+
     }
 }

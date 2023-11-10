@@ -19,7 +19,7 @@ using Utils;
 namespace NWAPI.CustomItems.API.Extensions
 {
     /// <summary>
-    /// A set of tools for <see cref="Player"/>
+    ///  A collection of extension methods for <see cref="Player"/>
     /// </summary>
     public static class PlayerExtensions
     {
