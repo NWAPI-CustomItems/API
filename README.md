@@ -116,3 +116,7 @@ public class EntryPoint
         };
    }
 ```
+
+# Credits
+- **Redforce04 was here** | Thanks for the help with the configurations
+- **Exiled Team** | some methods are directly extracted from the Exiled repository
