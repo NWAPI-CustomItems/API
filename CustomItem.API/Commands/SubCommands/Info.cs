@@ -22,12 +22,6 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
         public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
         {
-            if (!sender.CheckPermission(PlayerPermissions.GivingItems))
-            {
-                response = $" Permission Denied. Required permission is {PlayerPermissions.GivingItems}";
-                return false;
-            }
-
             if (arguments.IsEmpty())
             {
                 response = $" To execute this command, you need at least 1 arguments.\nUsage: {arguments.Array[0]} {arguments.Array[1]} {this.DisplayCommandUsage()}";

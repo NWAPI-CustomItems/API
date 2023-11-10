@@ -237,7 +237,7 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="type">Model type.</param>
         /// <param name="skipJump">Whether or not to skip the little jump that works around an invisibility issue.</param>
         /// <param name="unitId">The UnitNameId to use for the player's new role, if the player's new role uses unit names. (is NTF).</param>
-        public static void ChangeAppearance(this Player player, RoleTypeId type, bool skipJump = false, byte unitId = 0) => ChangeAppearance(player, type, Player.GetPlayers().Where(x => x != player), skipJump, unitId);
+        public static void ChangeAppearance(this Player player, RoleTypeId type, bool skipJump = false, byte unitId = 0) => ChangeAppearance(player, type, Player.GetPlayers().Where(x => x != player && x.IsReady), skipJump, unitId);
 
         // -----------------------------------------------------------------------
         // <copyright file="MirrorExtensions.cs" company="Exiled Team">
