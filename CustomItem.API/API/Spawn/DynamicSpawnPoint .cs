@@ -43,6 +43,6 @@ namespace NWAPI.CustomItems.API.Spawn
         }
 
         /// <inheritdoc/>
-        public override Vector3? Offset { get; set; }
+        public override Vector3 Offset { get; set; } = Vector3.zero;
     }
 }

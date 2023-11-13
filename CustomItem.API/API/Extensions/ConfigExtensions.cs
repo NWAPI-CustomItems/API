@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using YamlDotNet.Core;
 
 namespace NWAPI.CustomItems.API.Extensions
 {
@@ -63,7 +64,7 @@ namespace NWAPI.CustomItems.API.Extensions
                         File.WriteAllText(targetPath, API.Configs.Serialization.Serializer.Serialize(defaultConfig));
                         return defaultConfig;
                     }
-                    catch (Exception e)
+                    catch (YamlException e)
                     {
                         Log.Error($"{nameof(LoadCustomItemConfig)} error on trying to generate default config: {e.Message}");
                         return null;
@@ -71,26 +72,26 @@ namespace NWAPI.CustomItems.API.Extensions
                 }
                 else
                 {
+                    object config;
                     try
                     {
-                        object config;
-                        try
-                        {
-                            config = API.Configs.Serialization.Deserializer.Deserialize(File.ReadAllText(targetPath), field.FieldType);
-                        }
-                        catch (Exception ex)
-                        {
-                            Log.Error($"Failed deserializing config file for &2{assembly.FullName}&r,\n{ex}");
-                            return null;
-                        }
+                        config = API.Configs.Serialization.Deserializer.Deserialize(File.ReadAllText(targetPath), field.FieldType);
+                    }
+                    catch (YamlException ex)
+                    {
+                        Log.Error($"Failed deserializing config file for &2{assembly.GetName().Name}&r,\n{ex.Message} | {ex.Start}");
+                        return null;
+                    }
 
+                    try
+                    {
                         field.SetValue(entryPointInstance, config);
                         File.WriteAllText(targetPath, API.Configs.Serialization.Serializer.Serialize(config));
                         return config;
                     }
                     catch (Exception e)
                     {
-                        Log.Error($"{nameof(LoadCustomItemConfig)} error on trying to load config: {e.Message}");
+                        Log.Error($"{nameof(LoadCustomItemConfig)} error on trying to load config: {e.Message} | {e.GetType()}");
                         return null;
                     }
                 }

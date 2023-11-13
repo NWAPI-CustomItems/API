@@ -28,27 +28,28 @@ namespace NWAPI.CustomItems.API.Configs
         /// Gets or sets the serializer for configs and translations.
         /// </summary>
         public static ISerializer Serializer { get; set; } = new SerializerBuilder()
-          .WithTypeConverter(new VectorsConverter())
-          .WithTypeConverter(new ColorConverter())
-          .WithEventEmitter(eventEmitter => new TypeAssigningEventEmitter(eventEmitter))
-          .WithTypeInspector(inner => new CommentGatheringTypeInspector(inner))
-          .WithEmissionPhaseObjectGraphVisitor(args => new CommentsObjectGraphVisitor(args.InnerVisitor))
-          .WithNamingConvention(UnderscoredNamingConvention.Instance)
-          .IgnoreFields()
-          .DisableAliases()
-          .Build();
+            .WithTypeConverter(new VectorsConverter())
+            .WithTypeConverter(new ColorConverter())
+            .WithEventEmitter(eventEmitter => new TypeAssigningEventEmitter(eventEmitter))
+            .WithTypeInspector(inner => new CommentGatheringTypeInspector(inner))
+            .WithEmissionPhaseObjectGraphVisitor(args => new CommentsObjectGraphVisitor(args.InnerVisitor))
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .IgnoreFields()
+            .DisableAliases()
+            .Build();
 
         /// <summary>
         /// Gets or sets the deserializer for configs and translations.
         /// </summary>
         public static IDeserializer Deserializer { get; set; } = new DeserializerBuilder()
-          .WithTypeConverter(new VectorsConverter())
-          .WithTypeConverter(new ColorConverter())
-          .WithNamingConvention(UnderscoredNamingConvention.Instance)
-          .WithNodeDeserializer(inner => new ValidatingNodeDeserializer(inner), deserializer => deserializer.InsteadOf<ObjectNodeDeserializer>())
-          .IgnoreFields()
-          .IgnoreUnmatchedProperties()
-          .Build();
+            .WithTypeConverter(new VectorsConverter())
+            .WithTypeConverter(new ColorConverter())
+            .WithNamingConvention(UnderscoredNamingConvention.Instance)
+            .WithNodeDeserializer(inner => new ValidatingNodeDeserializer(inner), deserializer => deserializer.InsteadOf<ObjectNodeDeserializer>())
+            .IgnoreFields()
+            .IgnoreUnmatchedProperties()
+            .Build();
+
 
         /// <summary>
         /// Gets or sets the quotes wrapper type.

@@ -19,7 +19,7 @@ namespace NWAPI.CustomItems.API.Configs.Tools
 {
 #nullable disable
     /// <summary>
-    /// Source: https://dotnetfiddle.net/8M6iIE.
+    /// Spurce: https://dotnetfiddle.net/8M6iIE.
     /// </summary>
     public sealed class CommentGatheringTypeInspector : TypeInspectorSkeleton
     {

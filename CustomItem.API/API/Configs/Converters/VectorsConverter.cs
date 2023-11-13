@@ -48,8 +48,7 @@ namespace NWAPI.CustomItems.API.Configs.Converters
                     continue;
                 }
 
-                if (!parser.TryConsume(out Scalar scalar) || !float.TryParse(scalar.Value, NumberStyles.Float,
-                        CultureInfo.GetCultureInfo("en-US"), out float coordinate))
+                if (!parser.TryConsume(out Scalar scalar) || !float.TryParse(scalar.Value, NumberStyles.Float, CultureInfo.GetCultureInfo("en-US"), out float coordinate))
                 {
                     ListPool<object>.Release(coordinates);
                     throw new InvalidDataException($"Invalid float value.");

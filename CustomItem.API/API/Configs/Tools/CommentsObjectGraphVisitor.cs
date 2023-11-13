@@ -38,67 +38,9 @@ namespace NWAPI.CustomItems.API.Configs.Tools
         /// <inheritdoc/>
         public override bool EnterMapping(IPropertyDescriptor key, IObjectDescriptor value, IEmitter context)
         {
-            try
+            if (value is CommentsObjectDescriptor commentsDescriptor && commentsDescriptor.Comment is not null)
             {
-                var ignoreAttribute = key.GetCustomAttribute<YamlIgnoreAttribute>();
-                var propertyIgnoreAttribute = value.Type.GetCustomAttribute<YamlIgnoreAttribute>();
-
-                if (ignoreAttribute is not null)
-                    return false;
-                if (propertyIgnoreAttribute is not null)
-                    return false;
-                var memberAttribute = key.GetCustomAttribute<YamlMemberAttribute>();
-                var propertyMemberAttribute = key.GetCustomAttribute<YamlMemberAttribute>();
-                DefaultValuesHandling handling = 0;
-                if (memberAttribute is not null && memberAttribute.IsDefaultValuesHandlingSpecified)
-                {
-                    handling |= memberAttribute.DefaultValuesHandling;
-                }
-
-                if (propertyMemberAttribute is not null && propertyMemberAttribute.IsDefaultValuesHandlingSpecified)
-                {
-                    handling |= propertyMemberAttribute.DefaultValuesHandling;
-                }
-
-                if (handling == 0)
-                    goto SkipDefaultsCheck;
-
-                if (handling.HasFlag(DefaultValuesHandling.OmitDefaults))
-                {
-                    var defaultValue = value.Type.IsValueType ? Activator.CreateInstance(value.Type) : null;
-                    if (Equals(value.Value, defaultValue))
-                        return false;
-                }
-
-                if (handling.HasFlag(DefaultValuesHandling.OmitNull))
-                {
-                    if (Equals(value.Value, null))
-                        return false;
-                }
-
-                if (handling.HasFlag(DefaultValuesHandling.OmitEmptyCollections))
-                {
-                    if (value.Value is ICollection { Count: 0 })
-                        return false;
-                }
-
-            }
-            catch (Exception e)
-            {
-                Log.Debug($"Yaml error caught. E: \n {e}");
-            }
-        SkipDefaultsCheck:
-
-            try
-            {
-                if (value is CommentsObjectDescriptor commentsDescriptor && commentsDescriptor.Comment is not null)
-                {
-                    context.Emit(new Comment(commentsDescriptor.Comment, false));
-                }
-            }
-            catch (Exception e)
-            {
-                Log.Debug($"Cannot emit comment. \n {e}");
+                context.Emit(new Comment(commentsDescriptor.Comment, false));
             }
 
             return base.EnterMapping(key, value, context);

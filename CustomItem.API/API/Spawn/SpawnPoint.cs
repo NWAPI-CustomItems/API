@@ -32,7 +32,7 @@ namespace NWAPI.CustomItems.API.Spawn
         /// <summary>
         /// Gets or sets an optional offset from the spawn point's position.
         /// </summary>
-        public abstract Vector3? Offset { get; set; }
+        public abstract Vector3 Offset { get; set; }
 
         /// <summary>
         /// Deconstructs the class into usable variables.

@@ -426,7 +426,7 @@ namespace NWAPI.CustomItems.API.Features
                 }
                 else if (spawnPoint is RoleSpawnPoint roleSpawnPoint)
                 {
-                    ItemPickup? pickup = roleSpawnPoint.Offset.HasValue ? Spawn(roleSpawnPoint.Position + roleSpawnPoint.Offset.Value, null) : Spawn(roleSpawnPoint.Position, null);
+                    ItemPickup? pickup = roleSpawnPoint.Offset != Vector3.zero ? Spawn(roleSpawnPoint.Position + roleSpawnPoint.Offset, null) : Spawn(roleSpawnPoint.Position, null);
 
                     if (pickup is null)
                         continue;
@@ -439,7 +439,7 @@ namespace NWAPI.CustomItems.API.Features
                 {
                     try
                     {
-                        ItemPickup? pickup = spawnPoint.Offset.HasValue ? Spawn(spawnPoint.Position + spawnPoint.Offset.Value, null) : Spawn(spawnPoint.Position, null);
+                        ItemPickup? pickup = spawnPoint.Offset != Vector3.zero ? Spawn(spawnPoint.Position + spawnPoint.Offset, null) : Spawn(spawnPoint.Position, null);
                         if (pickup is null)
                             continue;
 
@@ -600,12 +600,12 @@ namespace NWAPI.CustomItems.API.Features
 
             List<CustomItem> items = new();
             var assembly = Assembly.GetCallingAssembly();
-
+            string assemblyName = assembly.GetName().Name;
             object? customItemConfig = assembly.LoadCustomItemConfig();
 
             if (customItemConfig is null)
             {
-                Log.Error($"{nameof(RegisterItems)}: error in trying to register assembly custom items, custom item config is null");
+                Log.Error($"{nameof(RegisterItems)}: Error on trying to register custom items of {assemblyName} custom item config is null");
                 return new();
             }
 
@@ -632,6 +632,9 @@ namespace NWAPI.CustomItems.API.Features
                     NorthwoodLib.Pools.ListPool<CustomItem>.Shared.Return(_toRegister);
                 }
             }
+
+            if(items.Count > 0)
+                Log.Warning($"{items.Count} custom item registered in {assemblyName}");
 
             /*var items = assembly.GetTypes()
                 .Where(t => (t.BaseType == typeof(CustomItem) || t.IsSubclassOf(typeof(CustomItem))) && t.GetCustomAttribute(typeof(CustomItemAttribute)) is not null)
