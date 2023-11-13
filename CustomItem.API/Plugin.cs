@@ -34,7 +34,7 @@ namespace NWAPI.CustomItems
         /// <summary>
         /// Gets the api version.
         /// </summary>
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         /// <summary>
         /// Harmony id used to track assembly patchs.
@@ -66,7 +66,7 @@ namespace NWAPI.CustomItems
 
             PluginAPI.Events.EventManager.RegisterEvents(Instance, new Handlers.MapHandler());
 
-            Log.Warning($"CustomItemsAPI is Loaded");
+            Log.Warning($"NWAPI.CustomItems.API ({Version}) is Loaded");
         }
 
         [PluginUnload]
