@@ -30,7 +30,7 @@ namespace NWAPI.CustomItems.Patches
     /// Harmony patch for the getter of the 'SprintingDisabled' property in the 'BodyArmor' class.
     /// This patch allows custom armor items to modify the sprinting disable property.
     /// </summary>
-    [HarmonyPatch(typeof(BodyArmor), nameof(BodyArmor.SprintingDisabled), MethodType.Getter)]
+    //[HarmonyPatch(typeof(BodyArmor), nameof(BodyArmor.SprintingDisabled), MethodType.Getter)]
     public class BodyArmorSprintDisablePatch
     {
         /// <summary>

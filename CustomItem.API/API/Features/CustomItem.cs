@@ -2,7 +2,7 @@
 using InventorySystem.Items;
 using InventorySystem.Items.Firearms;
 using InventorySystem.Items.Pickups;
-using MapGeneration.Distributors;
+using MapGeneration;
 using MEC;
 using NWAPI.CustomItems.API.Enums;
 using NWAPI.CustomItems.API.Extensions;
@@ -359,74 +359,77 @@ namespace NWAPI.CustomItems.API.Features
         /// <returns>The total number of items successfully spawned.</returns>
         public virtual uint Spawn(IEnumerable<SpawnPoint> spawnPoints, uint amount)
         {
-            uint spawned = 0;
+            uint spawnAttemps = 0;
+            uint itemsSpawned = 0;
+
+            if (amount == 0)
+            {
+                Log.Debug($"{nameof(Spawn)} - {Id}: Spawn amount is 0, no items will be spawned.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+                return 0;
+            }
 
             // Do the logic for spawning the items based in spawpoints
 
             foreach (SpawnPoint spawnPoint in spawnPoints)
             {
-                Log.Debug($"Attempting to spawn {Name} at {spawnPoint.Position}.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
-                if (Plugin.Random.NextDouble() * 100 >= spawnPoint.Chance || (amount > 0 && spawned >= amount))
+                Log.Debug($"{nameof(Spawn)} - {Id}: Attempting to spawn {Name} in {spawnPoint.Name}. ", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+
+                if ((spawnPoint.Chance < 100 && Plugin.Random.NextDouble() * 100 >= spawnPoint.Chance) || (amount > 0 && spawnAttemps >= amount))
                     continue;
 
-                spawned++;
+                spawnAttemps++;
 
                 if (spawnPoint is DynamicSpawnPoint dynamicSpawnPoint && dynamicSpawnPoint.Location == SpawnLocationType.InsideLocker)
                 {
                     for (int i = 0; i < 50; i++)
                     {
-                        if (Map.Lockers is null)
+
+                        if (MapLocker.Lockers.IsEmpty())
                         {
-                            Log.Debug($"{nameof(Spawn)}: Locker list is null.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+                            Log.Debug($"{nameof(Spawn)} - {Id}: Locker list is null.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
 
-                        Locker locker = Map.Lockers.ToArray()[Plugin.Random.Next(Map.Lockers.Count)];
+                        MapLocker locker;
+
+                        if (dynamicSpawnPoint.LockerZone != FacilityZone.None)
+                        {
+                            locker = MapLocker.Lockers.Where(l => l.Zone == dynamicSpawnPoint.LockerZone).RandomElement();
+                            Log.Debug($"{nameof(Spawn)} - {Id}: Searched locker in zone {dynamicSpawnPoint.LockerZone} | LockerFound: {locker.Room}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+                        }
+                        else
+                        {
+                            locker = MapLocker.Lockers.RandomElement();
+                            Log.Debug($"{nameof(Spawn)} - {Id}: Searched locker in random zone | LockerFound: {locker.Room} ({locker.Zone})", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+                        }
 
                         if (locker is null)
                         {
-                            Log.Debug($"{nameof(Spawn)}: Selected locker is null.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+                            Log.Debug($"{nameof(Spawn)} - {Id}: Selected locker is null.", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
                         }
 
-                        if (locker.Loot is null)
-                        {
-                            Log.Debug($"{nameof(Spawn)}: Invalid locker location. Attempting to find a new one..", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
-                            continue;
-                        }
-
-                        if (locker.Chambers is null)
-                        {
-                            Log.Debug($"{nameof(Spawn)}: Locker chambers is null", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
-                            continue;
-                        }
-
-                        LockerChamber chamber = locker.Chambers[Plugin.Random.Next(Mathf.Max(0, locker.Chambers.Length - 1))];
-
-                        if (chamber is null)
-                        {
-                            Log.Debug($"{nameof(Spawn)}: chamber is null", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
-                            continue;
-                        }
-
-                        Vector3 position = chamber._spawnpoint.transform.position;
-                        var pickup = Spawn(position, null);
+                        var pickup = Spawn(Vector3.zero, null);
 
                         if (pickup is null)
+                        {
+                            Log.Debug($"{nameof(Spawn)} - {Id}: Pickup is null", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                             continue;
+                        }
 
-                        pickup.Spawn();
+                        locker.AddLoot(pickup.OriginalObject);
+
                         TrackedSerials.Add(pickup.Serial);
                         AllCustomItemsSerials.Add(pickup.Serial);
 
-                        Log.Debug($"Spawned {Name} at {position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
-
+                        itemsSpawned++;
+                        Log.Debug($"Spawned {Name} inside a locker {locker.Room} ({locker.Zone}) {locker.Position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                         break;
                     }
                 }
                 else if (spawnPoint is RoleSpawnPoint roleSpawnPoint)
                 {
-                    ItemPickup? pickup = roleSpawnPoint.Offset != Vector3.zero ? Spawn(roleSpawnPoint.Position + roleSpawnPoint.Offset, null) : Spawn(roleSpawnPoint.Position, null);
+                    ItemPickup? pickup = Spawn(roleSpawnPoint.Position, null);
 
                     if (pickup is null)
                         continue;
@@ -434,12 +437,13 @@ namespace NWAPI.CustomItems.API.Features
                     pickup.Spawn();
                     TrackedSerials.Add(pickup.Serial);
                     AllCustomItemsSerials.Add(pickup.Serial);
+                    itemsSpawned++;
                 }
                 else
                 {
                     try
                     {
-                        ItemPickup? pickup = spawnPoint.Offset != Vector3.zero ? Spawn(spawnPoint.Position + spawnPoint.Offset, null) : Spawn(spawnPoint.Position, null);
+                        ItemPickup? pickup = Spawn(spawnPoint.Position, null);
                         if (pickup is null)
                             continue;
 
@@ -452,7 +456,7 @@ namespace NWAPI.CustomItems.API.Features
                         pickup.Spawn();
                         TrackedSerials.Add(pickup.Serial);
                         AllCustomItemsSerials.Add(pickup.Serial);
-
+                        itemsSpawned++;
                         Log.Debug($"Spawned {Name} at {spawnPoint.Position}", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
                     }
                     catch (Exception e)
@@ -461,10 +465,9 @@ namespace NWAPI.CustomItems.API.Features
                         break;
                     }
                 }
-                return spawned;
             }
 
-            return spawned;
+            return itemsSpawned;
         }
 
         #endregion
@@ -482,12 +485,19 @@ namespace NWAPI.CustomItems.API.Features
         /// </summary>
         public virtual void SpawnAll()
         {
-            if (SpawnProperties is null)
+            if (SpawnProperties is null || SpawnProperties.Limit == 0)
                 return;
+
+            Log.Debug($"{nameof(SpawnAll)}: Starting the spawn of {SpawnProperties.Limit} {Name} ({Id})", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+
+            if (SpawnProperties.Count() == 0)
+            {
+                Log.Debug($"{nameof(SpawnAll)}: No spawn points available for {Name} ({Id}).", Plugin.Instance.Config.DebugMode, "NWAPI.CustomItem.API");
+                return;
+            }
 
             Spawn(SpawnProperties.StaticSpawnPoints, Math.Min(0, SpawnProperties.Limit - Math.Min(0, Spawn(SpawnProperties.DynamicSpawnPoints, SpawnProperties.Limit) - Spawn(SpawnProperties.RoleSpawnPoints, SpawnProperties.Limit))));
         }
-
         #region Give
 
         /// <summary>
@@ -633,7 +643,7 @@ namespace NWAPI.CustomItems.API.Features
                 }
             }
 
-            if(items.Count > 0)
+            if (items.Count > 0)
                 Log.Warning($"{items.Count} custom item registered in {assemblyName}");
 
             /*var items = assembly.GetTypes()

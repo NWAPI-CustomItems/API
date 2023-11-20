@@ -57,7 +57,7 @@ namespace NWAPI.CustomItems.Commands
             {
                 var builder = new StringBuilder();
                 builder.AppendLine("Invalid subcommand. Available subcommands are:");
-                builder.AppendLine($"| Command {-5} | Aliases {-5} | Description {-5} |");
+                builder.AppendLine($"| Command | Aliases | Description |");
 
                 foreach (var command in CommandInfo)
                 {

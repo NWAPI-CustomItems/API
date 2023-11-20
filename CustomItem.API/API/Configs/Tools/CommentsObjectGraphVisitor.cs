@@ -1,7 +1,4 @@
-﻿using PluginAPI.Core;
-using System;
-using System.Collections;
-// <copyright file="Log.cs" company="Redforce04#4091">
+﻿// <copyright file="Log.cs" company="Redforce04#4091">
 // Copyright (c) Redforce04. All rights reserved.
 // </copyright>
 // -----------------------------------------
@@ -12,7 +9,6 @@ using System.Collections;
 //    Revision Date:    09/11/2023 2:12 PM
 //    Created Date:     09/11/2023 2:12 PM
 // -----------------------------------------
-using System.Reflection;
 using YamlDotNet.Core;
 using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;

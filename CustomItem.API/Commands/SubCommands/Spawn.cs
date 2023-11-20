@@ -74,7 +74,7 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 
             if (Enum.TryParse(arguments.At(1), out SpawnLocationType spawnLocationType))
             {
-                return spawnLocationType.GetPosition();
+                return spawnLocationType.GetPosition(Vector3.zero);
             }
 
             if (arguments.Count > 3 && Vector3Extensions.TryParse($"{arguments.At(1)} {arguments.At(2)} {arguments.At(3)}", out Vector3 position))

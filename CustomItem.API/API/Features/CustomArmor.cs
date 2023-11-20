@@ -4,6 +4,7 @@ using NWAPI.CustomItems.API.Extensions;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Events;
+using System.ComponentModel;
 using System.Linq;
 
 namespace NWAPI.CustomItems.API.Features
@@ -43,6 +44,7 @@ namespace NWAPI.CustomItems.API.Features
         /// <summary>
         /// Gets or sets a value indicating whether sprinting is disabled when wearing this armor.
         /// </summary>
+        [Description("This is currently disabled due to a desync that is caused on the client and the server and can cause the player who has the armor to see the anticheat pull it back, the other players will see it as not running.")]
         public virtual bool SprintDisable { get; set; } = false;
 
         /// <summary>

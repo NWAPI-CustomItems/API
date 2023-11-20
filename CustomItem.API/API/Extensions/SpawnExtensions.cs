@@ -1,5 +1,6 @@
 ﻿using Interactables.Interobjects.DoorUtils;
 using NWAPI.CustomItems.API.Enums;
+using System;
 using UnityEngine;
 
 // -----------------------------------------------------------------------
@@ -11,7 +12,7 @@ using UnityEngine;
 namespace NWAPI.CustomItems.API.Extensions
 {
     /// <summary>
-    /// A collection of extension methods for spawning items
+    /// A set of extensions for <see cref="SpawnLocationType"/>.
     /// </summary>
     public static class SpawnExtensions
     {
@@ -54,13 +55,17 @@ namespace NWAPI.CustomItems.API.Extensions
         /// Tries to get the <see cref="Vector3"/> used for a specific <see cref="SpawnLocationType"/>.
         /// </summary>
         /// <param name="location">The <see cref="SpawnLocationType"/> to check.</param>
+        /// <param name="offset"></param>
         /// <returns>The <see cref="Vector3"/> used for that spawn location. Can be <see cref="Vector3.zero"/>.</returns>
-        public static Vector3 GetPosition(this SpawnLocationType location)
+        public static Vector3 GetPosition(this SpawnLocationType location, Vector3 offset)
         {
             Transform? transform = location.GetDoor();
 
             if (transform is null)
                 return default;
+
+            if (offset != Vector3.zero)
+                return transform.GetRelativePosition(offset);
 
             // Returns a value that is offset from the door's location.
             // The vector3.up * 1.5 is added to ensure they do not spawn inside the floor and get stuck.
@@ -76,6 +81,7 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <returns>Returns the door name.</returns>
         public static string GetDoorName(this SpawnLocationType spawnLocation) => spawnLocation switch
         {
+            SpawnLocationType.Inside330 => "330",
             SpawnLocationType.Inside096 => "096",
             SpawnLocationType.Inside914 => "914",
             SpawnLocationType.InsideHid => "HID",
@@ -104,5 +110,22 @@ namespace NWAPI.CustomItems.API.Extensions
             SpawnLocationType.InsideEscapeSecondary => "ESCAPE_SECONDARY",
             _ => string.Empty,
         };
+
+        /// <summary>
+        /// Useful for spawning items in reference to others, for example doors.
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="offset"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static Vector3 GetRelativePosition(this Transform location, Vector3 offset)
+        {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location), "The transform cannot be null.");
+            }
+
+            return location.position + (location.forward * offset.x) + (location.up * offset.y) + (location.right * offset.z);
+        }
     }
 }

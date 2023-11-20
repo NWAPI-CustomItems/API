@@ -49,11 +49,17 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="position">The new position to set for the ragdoll.</param>
         public static void MoveRagdoll(this BasicRagdoll ragdoll, Vector3 position)
         {
-            NetworkServer.UnSpawn(ragdoll.gameObject);
+            if (NetworkServer.spawned.ContainsKey(ragdoll.netId))
+            {
+                NetworkServer.UnSpawn(ragdoll.gameObject);
+
+                ragdoll.transform.position = position;
+
+                NetworkServer.Spawn(ragdoll.gameObject);
+                return;
+            }
 
             ragdoll.transform.position = position;
-
-            NetworkServer.Spawn(ragdoll.gameObject);
         }
 
         /// <summary>
@@ -63,11 +69,17 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="rotation">The new rotation to set for the ragdoll.</param>
         public static void RotateRagdoll(this BasicRagdoll ragdoll, Quaternion rotation)
         {
-            NetworkServer.UnSpawn(ragdoll.gameObject);
+            if (NetworkServer.spawned.ContainsKey(ragdoll.netId))
+            {
+                NetworkServer.UnSpawn(ragdoll.gameObject);
+
+                ragdoll.transform.rotation = rotation;
+
+                NetworkServer.Spawn(ragdoll.gameObject);
+                return;
+            }
 
             ragdoll.transform.rotation = rotation;
-
-            NetworkServer.Spawn(ragdoll.gameObject);
         }
 
         /// <summary>
@@ -77,11 +89,17 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="scale">The new scale to set for the ragdoll.</param>
         public static void ScaleRagdoll(this BasicRagdoll ragdoll, Vector3 scale)
         {
-            NetworkServer.UnSpawn(ragdoll.gameObject);
+            if (NetworkServer.spawned.ContainsKey(ragdoll.netId))
+            {
+                NetworkServer.UnSpawn(ragdoll.gameObject);
+
+                ragdoll.transform.localScale = scale;
+
+                NetworkServer.Spawn(ragdoll.gameObject);
+                return;
+            }
 
             ragdoll.transform.localScale = scale;
-
-            NetworkServer.Spawn(ragdoll.gameObject);
         }
 
         /// <summary>
@@ -141,14 +159,12 @@ namespace NWAPI.CustomItems.API.Extensions
 
             GameObject modelRagdoll = ragdollRole.Ragdoll.gameObject;
 
-            if (modelRagdoll == null || !UnityEngine.Object.Instantiate(modelRagdoll).TryGetComponent(out BasicRagdoll basicRagdoll))
+            if (modelRagdoll == null || !UnityEngine.Object.Instantiate(modelRagdoll).TryGetComponent(out ragdoll))
                 return false;
 
-            basicRagdoll.NetworkInfo = networkInfo;
-            basicRagdoll.MoveRagdoll(networkInfo.StartPosition);
-            basicRagdoll.RotateRagdoll(networkInfo.StartRotation);
-
-            ragdoll = basicRagdoll;
+            ragdoll.NetworkInfo = networkInfo;
+            ragdoll.MoveRagdoll(networkInfo.StartPosition);
+            ragdoll.RotateRagdoll(networkInfo.StartRotation);
             return true;
         }
 

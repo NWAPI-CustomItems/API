@@ -9,6 +9,7 @@ using PlayerRoles.FirstPersonControl;
 using PluginAPI.Core;
 using PluginAPI.Core.Items;
 using PluginAPI.Events;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static InventorySystem.Items.ThrowableProjectiles.ThrowableItem;
@@ -367,5 +368,25 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <returns>Returns true if the item is a registered custom item; otherwise, false.</returns>
         public static bool IsCustomItem(this Item item, out CustomItem? customItem) => IsCustomItem(item.OriginalObject, out customItem);
 
+        /// <summary>
+        /// Extension method that returns a random element from the provided enumerable.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the enumerable.</typeparam>
+        /// <returns>A randomly selected element from the enumerable.</returns>
+        public static T RandomElement<T>(this IEnumerable<T> enumerable)
+        {
+            return enumerable.RandomElementUsing<T>();
+        }
+
+        /// <summary>
+        /// Extension method that returns a random element from the provided enumerable using UnityEngine.Random.
+        /// </summary>
+        /// <typeparam name="T">The type of elements in the enumerable.</typeparam>
+        /// <returns>A randomly selected element from the enumerable.</returns>
+        public static T RandomElementUsing<T>(this IEnumerable<T> enumerable)
+        {
+            int index = UnityEngine.Random.Range(0, enumerable.Count());
+            return enumerable.ElementAt(index);
+        }
     }
 }

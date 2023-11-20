@@ -237,7 +237,7 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="type">Model type.</param>
         /// <param name="skipJump">Whether or not to skip the little jump that works around an invisibility issue.</param>
         /// <param name="unitId">The UnitNameId to use for the player's new role, if the player's new role uses unit names. (is NTF).</param>
-        public static void ChangeAppearance(this Player player, RoleTypeId type, bool skipJump = false, byte unitId = 0) => ChangeAppearance(player, type, Player.GetPlayers().Where(x => x != player && x.IsReady), skipJump, unitId);
+        public static void ChangeAppearance(this Player player, RoleTypeId type, bool skipJump = false, byte unitId = 0) => ChangeAppearance(player, type, Player.GetPlayers().Where(x => x != player), skipJump, unitId);
 
         // -----------------------------------------------------------------------
         // <copyright file="MirrorExtensions.cs" company="Exiled Team">
@@ -256,7 +256,7 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="unitId">The UnitNameId to use for the player's new role, if the player's new role uses unit names. (is NTF).</param>
         public static void ChangeAppearance(this Player player, RoleTypeId type, IEnumerable<Player> playersToAffect, bool skipJump = false, byte unitId = 0)
         {
-            if (!player.IsReady || !TryGetRoleBase(type, out PlayerRoleBase roleBase))
+            if (!player.IsConnected() || !TryGetRoleBase(type, out PlayerRoleBase roleBase))
                 return;
 
             bool isRisky = type.GetTeam() is Team.Dead || !player.IsAlive;
@@ -295,7 +295,10 @@ namespace NWAPI.CustomItems.API.Extensions
 
             foreach (Player target in playersToAffect)
             {
-                if (target != player || !isRisky)
+                if (isRisky)
+                    break;
+
+                if (target != player && target.IsConnected())
                     target.Connection.Send(writer.ToArraySegment());
                 else
                     Log.Error($"Prevent Seld-Desync of {player.Nickname} with {type}");
@@ -306,6 +309,16 @@ namespace NWAPI.CustomItems.API.Extensions
             // To counter a bug that makes the player invisible until they move after changing their appearance, we will teleport them upwards slightly to force a new position update for all clients.
             if (!skipJump)
                 player.Position += Vector3.up * 0.25f;
+        }
+
+        /// <summary>
+        /// Checks if the player is well connected to the server.
+        /// </summary>
+        /// <param name="player"></param>
+        /// <returns></returns>
+        public static bool IsConnected(this Player player)
+        {
+            return player.GameObject != null && player.ReferenceHub.authManager.InstanceMode == CentralAuth.ClientInstanceMode.ReadyClient;
         }
     }
 }
