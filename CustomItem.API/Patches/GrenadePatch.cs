@@ -3,6 +3,7 @@ using InventorySystem.Items.ThrowableProjectiles;
 using Mirror;
 using NWAPI.CustomItems.API.Components;
 using NWAPI.CustomItems.API.Features;
+using PluginAPI.Events;
 
 namespace NWAPI.CustomItems.Patches
 {
@@ -24,6 +25,23 @@ namespace NWAPI.CustomItems.Patches
 
                 __instance.TargetTime = NetworkTime.time + customGrenade.FuseTime;
             }
+        }
+    }
+
+    /// <summary>
+    /// Patch to fix grenade explode event in <see cref="FlashbangGrenade"/>.
+    /// </summary>
+    //[HarmonyPatch(typeof(FlashbangGrenade), nameof(FlashbangGrenade.ServerFuseEnd))]
+    public class FixGrenadeExplodedEventOnFlashbang
+    {
+        private static bool Prefix(FlashbangGrenade __instance)
+        {
+            if (!EventManager.ExecuteEvent(new GrenadeExplodedEvent(__instance.PreviousOwner, __instance.transform.position, __instance)))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

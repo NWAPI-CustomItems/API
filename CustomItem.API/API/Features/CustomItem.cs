@@ -828,6 +828,8 @@ namespace NWAPI.CustomItems.API.Features
 
             if (customItemInfo.HasValue)
                 LookupTable.Remove(customItemInfo);
+
+            TrackedSerials.Clear();
         }
 
         /// <summary>
@@ -852,7 +854,9 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         public virtual void OnWaitingForPlayers(WaitingForPlayersEvent _)
         {
-            AllCustomItemsSerials.Clear();
+            if(AllCustomItemsSerials.Any())
+                AllCustomItemsSerials.Clear();
+
             TrackedSerials.Clear();
         }
 

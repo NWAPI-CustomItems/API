@@ -9,6 +9,9 @@
 //    Revision Date:    10/01/2023 1:07 PM
 //    Created Date:     10/01/2023 1:07 PM
 // -----------------------------------------
+using PluginAPI.Core.Zones;
+using PluginAPI.Roles;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -56,6 +59,20 @@ namespace NWAPI.CustomItems.API.Extensions
             string snakeCaseString = string.Concat(str.Select((ch, i) => (i > 0) && char.IsUpper(ch) ? "_" + ch.ToString() : ch.ToString())).ToLower();
 
             return shouldReplaceSpecialChars ? Regex.Replace(snakeCaseString, @"[^0-9a-zA-Z_]+", string.Empty) : snakeCaseString;
+        }
+
+        /// <summary>
+        /// Return a string text with all the values of a enum.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static string PrintEnumValues<T>() where T : Enum
+        {
+            string response = string.Empty;
+            foreach (T value in Enum.GetValues(typeof(T)))
+            {
+                response += $"\n{value}";
+            }
+            return response;
         }
     }
 }
