@@ -14,6 +14,8 @@ using static HarmonyLib.AccessTools;
 using UnityEngine;
 using static HarmonyLib.Code;
 using NWAPI.CustomItems.API.Extensions;
+using InventorySystem.Items.Pickups;
+using Footprinting;
 
 namespace NWAPI.CustomItems.Patches
 {
@@ -23,10 +25,20 @@ namespace NWAPI.CustomItems.Patches
     [HarmonyPatch(typeof(FlashbangGrenade), nameof(FlashbangGrenade.ServerFuseEnd))]
     public class FixGrenadeExplodedEventOnFlashbangPatch
     {
-        // This is the Transpiler method that Harmony will execute instead of the original method
-        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        private static bool Prefix(FlashbangGrenade __instance)
         {
-            List<CodeInstruction> newInstructions = new(instructions);
+            if (!EventManager.ExecuteEvent(new GrenadeExplodedEvent(__instance.PreviousOwner, __instance.transform.position, __instance)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        // This is the Transpiler method that Harmony will execute instead of the original method
+        /*private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
+        {
+            List<CodeInstruction> newInstructions = new List<CodeInstruction>(instructions);
 
             var label = generator.DefineLabel();
 
@@ -55,19 +67,23 @@ namespace NWAPI.CustomItems.Patches
                 new (OpCodes.Newobj, typeof(GrenadeExplodedEvent)),
 
                 // Current Stack: Event Arg
-                new (OpCodes.Callvirt, Method(typeof(EventManager), nameof(EventManager.ExecuteEvent), new Type[] {typeof(bool) })),
+                new (OpCodes.Call, Method(typeof(FixGrenadeExplodedEventOnFlashbangPatch), nameof(FixGrenadeExplodedEventOnFlashbangPatch.RunNorthwoodEvent))),
 
                 // Current stack: bool
                 new (OpCodes.Brtrue, label),
-                new (OpCodes.Ret)
+                new (OpCodes.Ret),
+                new CodeInstruction(OpCodes.Nop).WithLabels(label)
             });
-
-            newInstructions[11].WithLabels(label);
 
             for (int i = 0; i < newInstructions.Count; i++)
                 yield return newInstructions[i].Log(i, -1, Plugin.Instance.Config.DebugMode, true, new Dictionary<ushort, ushort>() { { 0, 11 } });
 
             yield break;
         }
+
+        private static bool RunNorthwoodEvent(Footprint thrower, Vector3 pos, ItemPickupBase grenade)
+        {
+            return PluginAPI.Events.EventManager.ExecuteEvent(new GrenadeExplodedEvent(thrower,pos, grenade));
+        }*/
     }
 }
