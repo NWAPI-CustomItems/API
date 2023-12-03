@@ -1,6 +1,4 @@
 ﻿using HarmonyLib;
-using MapGeneration;
-using NWAPI.CustomItems.API.Extensions;
 using PluginAPI.Core;
 using PluginAPI.Core.Attributes;
 using PluginAPI.Enums;

@@ -43,7 +43,8 @@ namespace NWAPI.CustomItems.API.Configs.Tools
                 if (nodeDeserializer.Deserialize(parser, expectedType, nestedObjectDeserializer, out value))
                 {
                     if (value is null)
-                        Log.Error($"{nameof(ValidatingNodeDeserializer)}::{nameof(Deserialize)}: Null value in {expectedType.Name}");
+                        Log.Error($"{nameof(ValidatingNodeDeserializer)}::{nameof(Deserialize)}: Null value");
+
                     Validator.ValidateObject(value, new ValidationContext(value, null, null), true);
 
                     return true;
@@ -53,7 +54,7 @@ namespace NWAPI.CustomItems.API.Configs.Tools
             }
             catch (Exception e)
             {
-                Log.Error($"{nameof(ValidatingNodeDeserializer)}::{nameof(Deserialize)}: {e.Message}");
+                Log.Error($"{nameof(ValidatingNodeDeserializer)}::{nameof(Deserialize)}: {e}");
                 value = null;
                 return false;
             }

@@ -498,6 +498,7 @@ namespace NWAPI.CustomItems.API.Features
 
             Spawn(SpawnProperties.StaticSpawnPoints, Math.Min(0, SpawnProperties.Limit - Math.Min(0, Spawn(SpawnProperties.DynamicSpawnPoints, SpawnProperties.Limit) - Spawn(SpawnProperties.RoleSpawnPoints, SpawnProperties.Limit))));
         }
+
         #region Give
 
         /// <summary>
@@ -596,60 +597,86 @@ namespace NWAPI.CustomItems.API.Features
         #endregion
 
         /// <summary>
-        /// Registers custom items defined in the calling assembly by looking for types
-        /// that inherit from CustomItem and are marked with the CustomItemAttribute.
+        /// Registers custom items from an IEnumerable collection.
         /// </summary>
+        /// <param name="enumerable">The IEnumerable collection containing CustomItem instances.</param>
         /// <returns>A list of registered CustomItem instances.</returns>
-        public static List<CustomItem> RegisterItems()
+        private static List<CustomItem> RegisterItemsFromEnumerable(IEnumerable enumerable)
+        {
+            // Rent a list for temporary storage of CustomItem instances.
+            List<CustomItem> toRegister = NorthwoodLib.Pools.ListPool<CustomItem>.Shared.Rent();
+
+            // Iterate over items in the IEnumerable property.
+            foreach (var value in enumerable)
+            {
+                // Check if the item is a valid CustomItem with the CustomItemAttribute.
+                if (value is CustomItem ci && value.GetType().GetCustomAttribute<CustomItemAttribute>() is not null)
+                    toRegister.Add(ci);
+            }
+
+            // Register each CustomItem and add it to the final list.
+            List<CustomItem> registeredItems = toRegister.Where(customItem => customItem.TryRegister()).ToList();
+
+            // Return the rented list to the pool.
+            NorthwoodLib.Pools.ListPool<CustomItem>.Shared.Return(toRegister);
+
+            return registeredItems;
+        }
+
+        /// <summary>
+        /// Registers custom items based on configuration settings and optional override class.
+        /// </summary>
+        /// <param name="overrideClass">Optional class to override default custom item registration.</param>
+        /// <returns>A list of registered CustomItem instances.</returns>
+        public static List<CustomItem> RegisterItems(object? overrideClass = null)
         {
             if (!Plugin.Instance.Config.IsEnabled)
             {
                 Log.Warning("NWAPI.CustomItems.API has been disabled due to configuration settings and will not register any item");
-                return new();
+                return new List<CustomItem>();
             }
 
-            List<CustomItem> items = new();
+            List<CustomItem> items = new List<CustomItem>();
             var assembly = Assembly.GetCallingAssembly();
             string assemblyName = assembly.GetName().Name;
-            object? customItemConfig = assembly.LoadCustomItemConfig();
 
-            if (customItemConfig is null)
+            if (overrideClass is null)
             {
-                Log.Error($"{nameof(RegisterItems)}: Error on trying to register custom items of {assemblyName} custom item config is null");
-                return new();
-            }
+                // Load custom item configuration from the calling assembly.
+                object? customItemConfig = assembly.LoadCustomItemConfig();
 
-            foreach (var item in customItemConfig.GetType().GetProperties())
-            {
-                if (item.GetValue(customItemConfig) is IEnumerable enumerable)
+                if (customItemConfig is null)
                 {
-                    List<CustomItem> _toRegister = NorthwoodLib.Pools.ListPool<CustomItem>.Shared.Rent();
+                    Log.Error($"{nameof(RegisterItems)}: Error trying to register custom items of {assemblyName}. Custom item config is null");
+                    return new List<CustomItem>();
+                }
 
-                    foreach (var value in enumerable)
+                foreach (var item in customItemConfig.GetType().GetProperties())
+                {
+                    // Check if the property is an IEnumerable and register items.
+                    if (item.GetValue(customItemConfig) is IEnumerable enumerable)
                     {
-                        if (value is CustomItem ci && value.GetType().GetCustomAttribute<CustomItemAttribute>() is not null)
-                            _toRegister.Add(ci);
-
-                        foreach (var customitem in _toRegister)
-                        {
-                            if (!customitem.TryRegister())
-                                continue;
-
-                            items.Add(customitem);
-                        }
+                        items.AddRange(RegisterItemsFromEnumerable(enumerable));
                     }
+                }
+            }
+            else
+            {
+                // Override class is provided, search and register custom items from its IEnumerable<CustomItem> properties.
+                var properties = overrideClass.GetType().GetProperties();
 
-                    NorthwoodLib.Pools.ListPool<CustomItem>.Shared.Return(_toRegister);
+                foreach (var property in properties)
+                {
+                    // Check if the property is an IEnumerable and register items.
+                    if (property.GetValue(overrideClass) is IEnumerable enumerable)
+                    {
+                        items.AddRange(RegisterItemsFromEnumerable(enumerable));
+                    }
                 }
             }
 
             if (items.Count > 0)
-                Log.Warning($"{items.Count} custom item registered in {assemblyName}");
-
-            /*var items = assembly.GetTypes()
-                .Where(t => (t.BaseType == typeof(CustomItem) || t.IsSubclassOf(typeof(CustomItem))) && t.GetCustomAttribute(typeof(CustomItemAttribute)) is not null)
-                .Select(itemType => (CustomItem)Activator.CreateInstance(itemType))
-                .Where(customItem => customItem.TryRegister()).ToList();*/
+                Log.Warning($"{items.Count} custom item(s) registered in {assemblyName}");
 
             return items;
         }
@@ -854,7 +881,7 @@ namespace NWAPI.CustomItems.API.Features
         [PluginEvent]
         public virtual void OnWaitingForPlayers(WaitingForPlayersEvent _)
         {
-            if(AllCustomItemsSerials.Any())
+            if (AllCustomItemsSerials.Any())
                 AllCustomItemsSerials.Clear();
 
             TrackedSerials.Clear();

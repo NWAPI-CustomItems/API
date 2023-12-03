@@ -3,7 +3,6 @@ using InventorySystem.Items.ThrowableProjectiles;
 using Mirror;
 using NWAPI.CustomItems.API.Components;
 using NWAPI.CustomItems.API.Features;
-using PluginAPI.Events;
 
 namespace NWAPI.CustomItems.Patches
 {

@@ -1,21 +1,6 @@
 ﻿using HarmonyLib;
 using InventorySystem.Items.ThrowableProjectiles;
 using PluginAPI.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using PluginAPI.Core;
-using InventorySystem;
-using static HarmonyLib.AccessTools;
-using UnityEngine;
-using static HarmonyLib.Code;
-using NWAPI.CustomItems.API.Extensions;
-using InventorySystem.Items.Pickups;
-using Footprinting;
 
 namespace NWAPI.CustomItems.Patches
 {

@@ -60,7 +60,6 @@ namespace NWAPI.CustomItems.API.Extensions
                     try
                     {
                         var defaultConfig = Activator.CreateInstance(field.FieldType);
-                        field.SetValue(entryPointInstance, defaultConfig);
                         File.WriteAllText(targetPath, API.Configs.Serialization.Serializer.Serialize(defaultConfig));
                         return defaultConfig;
                     }
@@ -73,13 +72,19 @@ namespace NWAPI.CustomItems.API.Extensions
                 else
                 {
                     object config;
+
                     try
                     {
-                        config = API.Configs.Serialization.Deserializer.Deserialize(File.ReadAllText(targetPath), field.FieldType);
+                        var rawconfig = ReadCustomConfig(targetPath);
+
+                        if (string.IsNullOrEmpty(rawconfig))
+                            throw new Exception("rawconfig is empty");
+
+                        config = API.Configs.Serialization.Deserializer.Deserialize(rawconfig, field.FieldType);
                     }
                     catch (YamlException ex)
                     {
-                        Log.Error($"Failed deserializing config file for &2{assembly.GetName().Name}&r,\n{ex.Message} | {ex.Start}");
+                        Log.Error($"Failed deserializing config file for &2{assembly.GetName().Name}.&r\n{ex.Message} | {ex.TargetSite}");
                         return null;
                     }
 
@@ -102,5 +107,29 @@ namespace NWAPI.CustomItems.API.Extensions
             return null;
         }
 
+        /// <summary>
+        /// Reads all custom item config file.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string ReadCustomConfig(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                Log.Error($"{nameof(ReadCustomConfig)}: Path to config is empty or null");
+                return string.Empty;
+            }
+
+            try
+            {
+                if (File.Exists(path))
+                    return File.ReadAllText(path);
+            }
+            catch (Exception exception)
+            {
+                Log.Error($"An error has occurred while reading configs from {path} path: {exception}");
+            }
+            return string.Empty;
+        }
     }
 }
