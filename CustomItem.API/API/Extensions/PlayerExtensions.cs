@@ -263,7 +263,7 @@ namespace NWAPI.CustomItems.API.Extensions
 
             NetworkWriterPooled writer = NetworkWriterPool.Get();
             writer.WriteUShort(38952);
-            writer.WriteUInt(player.NetworkId);
+            writer.WriteUInt(player.ReferenceHub.netId);
             writer.WriteRoleType(type);
 
             if (roleBase is HumanRole humanRole && humanRole.UsesUnitNames)
@@ -295,10 +295,7 @@ namespace NWAPI.CustomItems.API.Extensions
 
             foreach (Player target in playersToAffect)
             {
-                if (isRisky)
-                    break;
-
-                if (target != player && target.IsConnected())
+                if (target != player || !isRisky)
                     target.Connection.Send(writer.ToArraySegment());
                 else
                     Log.Error($"Prevent Seld-Desync of {player.Nickname} with {type}");
