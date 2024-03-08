@@ -150,9 +150,10 @@ namespace NWAPI.CustomItems.API.Extensions
         /// Triggers an explosion using the player's reference hub.
         /// </summary>
         /// <param name="player">The player whose reference hub should be used to trigger the explosion.</param>
+        [Obsolete("Not working, can crash the server dont use it.")]
         public static void Explode(this Player player)
         {
-            ExplosionUtils.ServerExplode(player.ReferenceHub);
+            // ExplosionUtils.ServerExplode(player.ReferenceHub);
         }
 
         /// <summary>
