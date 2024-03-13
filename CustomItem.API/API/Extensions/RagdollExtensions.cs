@@ -58,7 +58,6 @@ namespace NWAPI.CustomItems.API.Extensions
                 NetworkServer.Spawn(ragdoll.gameObject);
                 return;
             }
-
             ragdoll.transform.position = position;
         }
 
@@ -232,5 +231,13 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <returns>The ragdoll.</returns>
         public static BasicRagdoll? CreateAndSpawn(RoleTypeId roleType, string name, string deathReason, Vector3 position, Quaternion rotation, Player? owner = null)
             => CreateAndSpawn(roleType, name, new CustomReasonDamageHandler(deathReason), position, rotation, owner);
+
+        /// <summary>
+        /// Tries to get the base <see cref="PlayerRoleBase"/> of the given <see cref="RoleTypeId"/>.
+        /// </summary>
+        /// <param name="roleType">The <see cref="RoleTypeId"/>.</param>
+        /// <param name="roleBase">The <see cref="PlayerRoleBase"/> to return.</param>
+        /// <returns>The <see cref="PlayerRoleBase"/>.</returns>
+        public static bool TryGetRoleBase(this RoleTypeId roleType, out PlayerRoleBase roleBase) => PlayerRoleLoader.TryGetRoleTemplate(roleType, out roleBase);
     }
 }

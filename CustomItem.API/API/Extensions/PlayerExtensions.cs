@@ -150,10 +150,9 @@ namespace NWAPI.CustomItems.API.Extensions
         /// Triggers an explosion using the player's reference hub.
         /// </summary>
         /// <param name="player">The player whose reference hub should be used to trigger the explosion.</param>
-        [Obsolete("Not working, can crash the server dont use it.")]
         public static void Explode(this Player player)
         {
-            // ExplosionUtils.ServerExplode(player.ReferenceHub);
+            ExplosionUtils.ServerExplode(player.ReferenceHub);
         }
 
         /// <summary>
@@ -172,14 +171,6 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="roleType">The <see cref="RoleTypeId"/>.</param>
         /// <returns>The <see cref="PlayerRoleBase"/>.</returns>
         public static PlayerRoleBase? GetRoleBase(this RoleTypeId roleType) => roleType.TryGetRoleBase(out PlayerRoleBase roleBase) ? roleBase : null;
-
-        /// <summary>
-        /// Tries to get the base <see cref="PlayerRoleBase"/> of the given <see cref="RoleTypeId"/>.
-        /// </summary>
-        /// <param name="roleType">The <see cref="RoleTypeId"/>.</param>
-        /// <param name="roleBase">The <see cref="PlayerRoleBase"/> to return.</param>
-        /// <returns>The <see cref="PlayerRoleBase"/>.</returns>
-        public static bool TryGetRoleBase(this RoleTypeId roleType, out PlayerRoleBase roleBase) => PlayerRoleLoader.TryGetRoleTemplate(roleType, out roleBase);
 
         /// <summary>
         /// Gets a <see cref="RoleTypeId">role's</see> <see cref="Color"/>.
@@ -257,20 +248,21 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <param name="unitId">The UnitNameId to use for the player's new role, if the player's new role uses unit names. (is NTF).</param>
         public static void ChangeAppearance(this Player player, RoleTypeId type, IEnumerable<Player> playersToAffect, bool skipJump = false, byte unitId = 0)
         {
-            if (!player.IsConnected() || !TryGetRoleBase(type, out PlayerRoleBase roleBase))
+            if (!player.IsConnected() || !RagdollExtensions.TryGetRoleBase(type, out PlayerRoleBase roleBase))
                 return;
 
             bool isRisky = type.GetTeam() is Team.Dead || !player.IsAlive;
 
             NetworkWriterPooled writer = NetworkWriterPool.Get();
             writer.WriteUShort(38952);
-            writer.WriteUInt(player.ReferenceHub.netId);
+            writer.WriteUInt(player.NetworkId);
             writer.WriteRoleType(type);
 
             if (roleBase is HumanRole humanRole && humanRole.UsesUnitNames)
             {
                 if (player.RoleBase is not HumanRole)
                     isRisky = true;
+
                 writer.WriteByte(unitId);
             }
 

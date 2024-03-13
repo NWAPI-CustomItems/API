@@ -34,7 +34,7 @@ namespace NWAPI.CustomItems
         /// <summary>
         /// Gets the api version.
         /// </summary>
-        public const string Version = "1.0.4";
+        public const string Version = "1.0.5";
 
         /// <summary>
         /// Harmony id used to track assembly patchs.
