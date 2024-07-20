@@ -10,6 +10,9 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 {
     internal sealed class Spawn : ICommand, IUsageProvider
     {
+        /// <inheritdoc/>
+        public bool SanitizeResponse => true;
+
         public string Command { get; } = "spawn";
 
         public string[] Aliases { get; } = { "s" };

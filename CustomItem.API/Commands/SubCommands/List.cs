@@ -7,6 +7,8 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 {
     internal sealed class List : ICommand
     {
+        /// <inheritdoc/>
+        public bool SanitizeResponse => true;
         public string Command { get; } = "list";
 
         public string[] Aliases { get; } = { "l" };

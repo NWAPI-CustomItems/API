@@ -9,6 +9,9 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 {
     internal sealed class Give : ICommand, IUsageProvider
     {
+        /// <inheritdoc/>
+        public bool SanitizeResponse => true;
+
         public string Command { get; } = "give";
 
         public string[] Aliases { get; } = { "g" };

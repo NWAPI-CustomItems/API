@@ -262,7 +262,6 @@ namespace NWAPI.CustomItems.API.Extensions
             {
                 if (player.RoleBase is not HumanRole)
                     isRisky = true;
-
                 writer.WriteByte(unitId);
             }
 
@@ -273,7 +272,8 @@ namespace NWAPI.CustomItems.API.Extensions
                 else
                     fpc = playerfpc;
 
-                fpc.FpcModule.MouseLook.GetSyncValues(0, out ushort value, out ushort _);
+                ushort value = 0;
+                fpc?.FpcModule.MouseLook.GetSyncValues(0, out value, out ushort _);
                 writer.WriteRelativePosition(new(player.Position));
                 writer.WriteUShort(value);
             }
@@ -308,7 +308,7 @@ namespace NWAPI.CustomItems.API.Extensions
         /// <returns></returns>
         public static bool IsConnected(this Player player)
         {
-            return player.GameObject != null && player.ReferenceHub.authManager.InstanceMode == CentralAuth.ClientInstanceMode.ReadyClient;
+            return player.GameObject != null && player.ReferenceHub.authManager.InstanceMode == CentralAuth.ClientInstanceMode.ReadyClient || !string.IsNullOrEmpty(player.UserId) || !player.UserId.Contains("Dummy");
         }
     }
 }

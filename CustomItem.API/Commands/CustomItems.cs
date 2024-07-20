@@ -26,7 +26,11 @@ namespace NWAPI.CustomItems.Commands
         /// <inheritdoc/>
         public override string Description => "Main command for customitems";
 
+        /// <inheritdoc/>
+        public bool SanitizeResponse => true;
+
         private readonly Dictionary<string, (string, string[])> CommandInfo = new();
+
         private string _cachedInfo = string.Empty;
         /// <inheritdoc/>
         public override void LoadGeneratedCommands()

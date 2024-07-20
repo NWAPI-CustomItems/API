@@ -7,6 +7,8 @@ namespace NWAPI.CustomItems.Commands.SubCommands
 {
     internal sealed class Info : ICommand, IUsageProvider
     {
+        /// <inheritdoc/>
+        public bool SanitizeResponse => true;
         public string Command { get; } = "info";
 
         public string[] Aliases { get; } = { "i" };
